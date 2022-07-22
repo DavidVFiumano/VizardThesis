@@ -5,6 +5,7 @@ import steve
 
 viz.setMultiSample(4)
 viz.fov(60)
+viz.MainView.collision( viz.ON )
 viz.go()
 
 # Use the steve module to represent the other user.
