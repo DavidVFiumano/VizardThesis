@@ -44,5 +44,3 @@ def onNetwork(e):
 
 # Register network to listen from incomming messages
 viz.callback(viz.NETWORK_EVENT, onNetwork)
-
-e.action(e)
