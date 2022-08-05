@@ -5,6 +5,8 @@ import vizact
 import vizinput
 import steve
 
+GAME_END_THRESHOLD = 0.65
+
 viz.setMultiSample(4)
 viz.fov(60)
 viz.MainView.collision( viz.ON )
@@ -45,7 +47,9 @@ def updateGameState(e):
     player_matrix.setPosition(e.pos)
     player_matrix.setQuat(e.quat)
     
-    print(calculateDistance(e.pos, viz.MainView.getPosition()))
+    playerDistance = calculateDistance(e.pos, viz.MainView.getPosition())
+    if playerDistance < GAME_END_THRESHOLD:
+        viz.quit()
 
 # Listens for any incomming messages
 def onNetwork(e):
