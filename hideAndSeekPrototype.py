@@ -1,5 +1,5 @@
 ﻿from math import sqrt
-from datetime import now
+from datetime import datetime
 
 import viz
 import vizact
@@ -13,8 +13,8 @@ START_TIME_COUNTDOWN = 10
 
 # game state variables
 gameStarted = False
-vizardLoadTime = now()
-screenText = viz.addText("Waiting for other player to connect...", parent=SCREEN)
+vizardLoadTime = datetime.now()
+screenText = viz.addText("Waiting for other player to connect...", parent=viz.SCREEN)
 startCountDown = START_TIME_COUNTDOWN
 gameRole = None
 
