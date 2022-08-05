@@ -51,7 +51,7 @@ def sendUpdates():
         target_mailbox.send(action=startGame, otherStartTime=vizardLoadTime)
 
 # Start a timer that sends out data over the network every frame
-vizact.ontimer(0,sendPosition)
+vizact.ontimer(0,sendUpdates)
 
 def calculateDistance(p1, p2):
     vectorSquared = [(dims[0] - dims[1])**2 for dims in zip(p1, p2)]
