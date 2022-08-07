@@ -103,7 +103,6 @@ def startGame(e):
 # Causes the game to wait for a player to connect.
 def waitForPlayer(e):
     print("Waiting...")
-    viz.addText("Waiting for other player to connect...", parent=viz.SCREEN)
     viz.mouse.setOverride()
     
 
