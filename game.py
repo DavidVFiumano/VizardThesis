@@ -48,7 +48,7 @@ class GameState:
         self.numDots = 3
     
     def getGameState(self):
-        return self.currentState.copy()
+        return self.currentState
     
     def updateGameState(self, event : viz.Event, eventType : str):
         self.history.append(self.currentState.copy())
@@ -78,6 +78,7 @@ class GameState:
     # after the connection occurs, the game state changes to "Connected Not Started"
     def updateGameNotStarted(self, event : viz.Event):
         if "Game State" in event:
+            print("Game State waz h3r3")
             self.currentState["Game Stage"] = "Connected Not Started"
             # better hope they don't start at the same time.
             if event["Game State"]["Game Load Time"] < self.currentState["Game Load Time"]:
@@ -131,7 +132,7 @@ def frameUpdate():
     mat = viz.MainView.getMatrix()
 
     #Send position/rotation to target network object
-    target_mailbox.send(gameState=state.getGameState())
+    target_mailbox.send(state.getGameState())
     
     state.updateGameState(dict(), "Frame Update")
 
@@ -141,8 +142,9 @@ vizact.ontimer(0,frameUpdate)
 # Listens for any incomming messages
 def onNetwork(e):
     if e.sender.upper() == target_machine:
+        print([a for a in e])
         state.updateGameState(e, "Network")
-        print("Network processed")
+        #print("Network processed")
         
 # Register network to listen from incomming messages
 viz.callback(viz.NETWORK_EVENT, onNetwork)
