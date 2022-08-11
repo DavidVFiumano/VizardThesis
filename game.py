@@ -13,10 +13,10 @@ class GameState:
     STARTING_SCREEN_TEXT = "Waiting for other player to connect..."
     START_TIME_COUNTDOWN = 10 # seconds
     GAME_DURATION = 30 # minutes
-    GAME_END_THRESHOLD = 0.65
+    GAME_END_THRESHOLD = 2
     SEEKER_START_POSITION = [5, 2, 10]
     SEEKER_START_ATTITUDE = [-0.0, -0.7157255673177139, 0.0, 0.6983816379943968]
-    HIDER_START_POSITION = [-5, -2, 10]
+    HIDER_START_POSITION = [0, 0, -10]
     HIDER_START_ATTITUDE = [0, 0, 0, 1.0]
     
     SCREEN_TEXT_CENTER_ISH = [0.33,0.5,0]
@@ -148,7 +148,6 @@ class GameState:
         
         if self.calculatePlayerDistances() < self.currentState["GAME_END_THRESHOLD"]:
             self.currentState["Game Stage"] = "End"
-            viz.mouse.setOverride(viz.ON)
             self.setScreenText(f"Game over! Seeker wins!")
         
         
