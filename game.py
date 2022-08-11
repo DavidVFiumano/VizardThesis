@@ -120,8 +120,8 @@ class GameState:
             viz.MainView.setPosition(type(self).SEEKER_START_POSITION)
             viz.MainView.setQuat(type(self).SEEKER_START_ATTITUDE)
         else:
-            viz.MainView.setPosition(type(self).SEEKER_START_POSITION)
-            viz.MainView.setQuat(type(self).SEEKER_START_ATTITUDE)
+            viz.MainView.setPosition(type(self).HIDER_START_POSITION)
+            viz.MainView.setQuat(type(self).HIDER_START_ATTITUDE)
             
         self.currentState["Game Stage"] = "Countdown"
         self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {self.currentState['START_TIME_COUNTDOWN']}...")
