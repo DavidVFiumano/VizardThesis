@@ -107,6 +107,7 @@ class GameState:
             viz.MainView.setQuat(type(self).SEEKER_START_ATTITUDE)
             
         self.currentState["Game Stage"] == "Countdown"
+        self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in 10...")
     
 # vizard code below this line
 viz.setMultiSample(4)
@@ -131,10 +132,13 @@ def frameUpdate():
     #Retrieve current transform of viewpoint
     mat = viz.MainView.getMatrix()
 
+    #print(state.getGameState())
     #Send position/rotation to target network object
     target_mailbox.send(state.getGameState())
     
     state.updateGameState(dict(), "Frame Update")
+
+
 
 # Start a timer that sends out data over the network every frame
 vizact.ontimer(0,frameUpdate)
@@ -142,8 +146,7 @@ vizact.ontimer(0,frameUpdate)
 # Listens for any incomming messages
 def onNetwork(e):
     if e.sender.upper() == target_machine:
-        print([a for a in e])
-        state.updateGameState(e, "Network")
+        state.updateGameState(e[2], "Network")
         #print("Network processed")
         
 # Register network to listen from incomming messages
