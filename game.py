@@ -11,7 +11,8 @@ import steve
 class GameState:
     
     STARTING_SCREEN_TEXT = "Waiting for other player to connect..."
-    START_TIME_COUNTDOWN = 10
+    START_TIME_COUNTDOWN = 10 # seconds
+    GAME_DURATION = 30 # minutes
     GAME_END_THRESHOLD = 0.65
     SEEKER_START_POSITION = [5, 2, 10]
     SEEKER_START_ATTITUDE = [-0.0, -0.7157255673177139, 0.0, 0.6983816379943968]
@@ -40,7 +41,8 @@ class GameState:
             "Position" : viz.MainView.getPosition(),
             "Attitude" : viz.MainView.getQuat(),
             "GAME END THRESHOLD" : type(self).GAME_END_THRESHOLD,
-            "START_TIME_COUNTDOWN" : type(self).START_TIME_COUNTDOWN
+            "START_TIME_COUNTDOWN" : type(self).START_TIME_COUNTDOWN,
+            "GAME_DURATION" : type(self).GAME_DURATION
         }
         self.otherPlayerState = {k : None for k in self.currentState.keys()}
         
@@ -119,6 +121,7 @@ class GameState:
         self.currentState["Game Stage"] = "Countdown"
         self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {self.currentState['START_TIME_COUNTDOWN']}...")
         self.currentState["Game Start Time"] = datetime.now() + timedelta(seconds=self.currentState['START_TIME_COUNTDOWN'])
+        self.currentState["Game End Time"] = datetime.now() + timedelta(minutes=self.currentState['GAME_DURATION'], seconds=self.currentState["START_TIME_COUNTDOWN"])
         
     def updateGameCountdown(self, event : Dict[str, Any]):
         if self.currentState["Game Start Time"] > datetime.now():
