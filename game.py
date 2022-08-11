@@ -64,6 +64,8 @@ class GameState:
         
         if self.currentState["Game Stage"] == "Not Started":
             self.updateGameNotStarted(event)
+        elif self.currentState["Game Stage"] == "Connected Not Started":
+            self.updateGameConnectedNotStarted(event)
     
     def getScreenText(self):
         return self.screenText
@@ -94,13 +96,22 @@ class GameState:
                 self.numDots = (self.numDots % 3) + 1
                 self.setScreenText("Waiting for other player to connect" + (self.numDots*"."))
                 self.lastScreenTextUpdateTime = datetime.now()
-        
+    
+    def updateGameConnectedNotStarted(self, event : viz.Event):
+        if self.currentState["Role"] == "Seeker":
+            viz.MainView.setPosition(type(self).SEEKER_START_POSITION)
+            viz.MainView.setQuat(type(self).SEEKER_START_ATTITUDE)
+        else:
+            viz.MainView.setPosition(type(self).SEEKER_START_POSITION)
+            viz.MainView.setQuat(type(self).SEEKER_START_ATTITUDE)
+            
+        self.currentState["Game Stage"] == "Countdown"
     
 # vizard code below this line
 viz.setMultiSample(4)
 viz.fov(60)
 viz.MainView.collision( viz.ON )
-#viz.mouse.setOverride(viz.ON)
+viz.mouse.setOverride(viz.ON)
 viz.go()
 
 # Add the world
@@ -123,8 +134,6 @@ def frameUpdate():
     target_mailbox.send(gameState=state.getGameState())
     
     state.updateGameState(dict(), "Frame Update")
-    
-    print(mat.getQuat())
 
 # Start a timer that sends out data over the network every frame
 vizact.ontimer(0,frameUpdate)
@@ -133,6 +142,7 @@ vizact.ontimer(0,frameUpdate)
 def onNetwork(e):
     if e.sender.upper() == target_machine:
         state.updateGameState(e, "Network")
+        print("Network processed")
         
 # Register network to listen from incomming messages
 viz.callback(viz.NETWORK_EVENT, onNetwork)
