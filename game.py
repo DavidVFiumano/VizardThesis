@@ -77,7 +77,7 @@ class GameState:
     # once a connection occurs, sets the location & role of the player character. Doesn't record the other game state yet.
     # after the connection occurs, the game state changes to "Connected Not Started"
     def updateGameNotStarted(self, event : viz.Event):
-        if event.get("Game State", None) is not None:
+        if "Game State" in event:
             self.currentState["Game Stage"] = "Connected Not Started"
             # better hope they don't start at the same time.
             if event["Game State"]["Game Load Time"] < self.currentState["Game Load Time"]:
