@@ -1,5 +1,5 @@
 ﻿from math import sqrt
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, Any
 
 import viz
@@ -22,6 +22,7 @@ class GameState:
     
     def __init__(self):
         self.history = list()
+        self.otherPlayerHistory = list()
         loadTime = datetime.now()
         self.screenText = viz.addText(type(self).STARTING_SCREEN_TEXT, viz.SCREEN)
         self.screenText.setPosition(type(self).SCREEN_TEXT_CENTER_ISH)
@@ -58,6 +59,7 @@ class GameState:
         self.currentState["Attitude"] = viz.MainView.getQuat()
         
         if eventType == "Network":
+            self.otherPlayerHistory.append(self.otherPlayerState)
             self.otherPlayerState = event
         elif eventType == "Frame Update":
             pass
@@ -67,6 +69,8 @@ class GameState:
             self.updateGameNotStarted(event)
         elif self.currentState["Game Stage"] == "Connected Not Started":
             self.updateGameConnectedNotStarted(event)
+        elif self.currentState["Game Stage"] == "Countdown":
+            self.updateGameCountdown(event)
     
     def getScreenText(self):
         return self.screenText
@@ -98,7 +102,7 @@ class GameState:
                 self.setScreenText("Waiting for other player to connect" + (self.numDots*"."))
                 self.lastScreenTextUpdateTime = datetime.now()
     
-    def updateGameConnectedNotStarted(self, event : viz.Event):
+    def updateGameConnectedNotStarted(self, event : Dict[str, Any]):
         if self.currentState["Role"] == "Seeker":
             viz.MainView.setPosition(type(self).SEEKER_START_POSITION)
             viz.MainView.setQuat(type(self).SEEKER_START_ATTITUDE)
@@ -107,7 +111,17 @@ class GameState:
             viz.MainView.setQuat(type(self).SEEKER_START_ATTITUDE)
             
         self.currentState["Game Stage"] = "Countdown"
-        self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in 10...")
+        self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {self.currenState['START_TIME_COUNTDOWN']}...")
+        self.currentState["Game Start Time"] = datetime.now() + timedelta(seconds=self.currenState['START_TIME_COUNTDOWN'])
+        
+    def updateGameStateCountdown(self, event : Dict[str, Any]):
+        if self.currentState["Game Start Time"] > datetime.now():
+            countDown = int((self.currentState["Game Start Time"] - datetime.now()).total_seconds())
+            self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {countDown}...")
+        else:
+            self.setScreenText("Go!")
+            self.currentState["Game Stage"] = "Playing"
+        
     
 # vizard code below this line
 viz.setMultiSample(4)
