@@ -111,17 +111,17 @@ class GameState:
             viz.MainView.setQuat(type(self).SEEKER_START_ATTITUDE)
             
         self.currentState["Game Stage"] = "Countdown"
-        self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {self.currenState['START_TIME_COUNTDOWN']}...")
-        self.currentState["Game Start Time"] = datetime.now() + timedelta(seconds=self.currenState['START_TIME_COUNTDOWN'])
+        self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {self.currentState['START_TIME_COUNTDOWN']}...")
+        self.currentState["Game Start Time"] = datetime.now() + timedelta(seconds=self.currentState['START_TIME_COUNTDOWN'])
         
     def updateGameCountdown(self, event : Dict[str, Any]):
-        if self.currentState["Game Start Time"] > datetime.now():
-            countDown = int((self.currentState["Game Start Time"] - datetime.now()).total_seconds())
-            self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {countDown}...")
-        else:
-            self.setScreenText("Go!")
-            self.currentState["Game Stage"] = "Playing"
-        
+        #if self.currentState["Game Start Time"] > datetime.now():
+        #    countDown = int((self.currentState["Game Start Time"] - datetime.now()).total_seconds())
+        #    self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {countDown}...")
+        #else:
+        #    self.setScreenText("Go!")
+        #    self.currentState["Game Stage"] = "Playing"
+        pass
         
     
 # vizard code below this line
