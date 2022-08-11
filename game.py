@@ -39,8 +39,8 @@ class GameState:
             "Screen Text Position" : type(self).SCREEN_TEXT_CENTER_ISH,
             "Position" : viz.MainView.getPosition(),
             "Attitude" : viz.MainView.getQuat(),
-            "GAME END THRESHHOLD" : 0.65,
-            "START_TIME_COUNTDOWN" : 10
+            "GAME END THRESHOLD" : type(self).GAME_END_THRESHOLD,
+            "START_TIME_COUNTDOWN" : type(self).START_TIME_COUNTDOWN
         }
         self.otherPlayerState = {k : None for k in self.currentState.keys()}
         
@@ -71,6 +71,8 @@ class GameState:
             self.updateGameConnectedNotStarted(event)
         elif self.currentState["Game Stage"] == "Countdown":
             self.updateGameCountdown(event)
+        elif self.currentState["Game Stage"] == "Playing":
+            self.updateGamePlaying(event)
     
     def getScreenText(self):
         return self.screenText
@@ -78,6 +80,10 @@ class GameState:
     def setScreenText(self, text):
         self.currentState["Screen Text"] = text
         self.screenText.message(text)
+        
+    def calculatePlayerDistances(self):
+        squaredResiduals = [(dim-odim)**2 for dim, odim in zip(self.currentState["Position"], self.otherPlayerState["Position"])]
+        return sum(squaredResiduals)
     
     # once a connection occurs, sets the location & role of the player character. Doesn't record the other game state yet.
     # after the connection occurs, the game state changes to "Connected Not Started"
@@ -120,8 +126,22 @@ class GameState:
             self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {countDown}...")
         else:
             self.setScreenText("Go!")
+            self.getScreenText().setPosition(x=0.5, y=0.9)
+            self.getScreenText().setScale(x=0.5, y=0.2)
             self.currentState["Game Stage"] = "Playing"
-        pass
+            viz.mouse.setOverride(viz.OFF)
+    
+    def updateGamePlaying(self, event : Dict[str, Any]):
+        dt = datetime.now()
+        if dt + timedelta(seconds=1) > self.currentState["Game Start Time"]:
+            delta = self.currentState["Game End Time"] - dt
+            self.setScreenText(f"{delta.seconds // 3600}:{int(delta.seconds)}")
+        
+        if self.calculatePlayerDistances() < self.currentState["GAME_END_THRESHOLD"]:
+            self.currentState["Game Stage"] = "End"
+            viz.mouse.setOverride(viz.ON)
+            self.setScreenText(f"Game over! Seeker wins!")
+        
         
     
 # vizard code below this line
