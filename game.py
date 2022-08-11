@@ -22,6 +22,9 @@ class GameState:
     SCREEN_TEXT_CENTER_ISH = [0.33,0.5,0]
     
     def __init__(self):
+        self.player_matrix = viz.Matrix()
+        self.avatar = steve.Steve()
+        self.avatar.setTracker(self.player_matrix)
         self.history = list()
         self.otherPlayerHistory = list()
         loadTime = datetime.now()
@@ -40,7 +43,7 @@ class GameState:
             "Screen Text Position" : type(self).SCREEN_TEXT_CENTER_ISH,
             "Position" : viz.MainView.getPosition(),
             "Attitude" : viz.MainView.getQuat(),
-            "GAME END THRESHOLD" : type(self).GAME_END_THRESHOLD,
+            "GAME_END_THRESHOLD" : type(self).GAME_END_THRESHOLD,
             "START_TIME_COUNTDOWN" : type(self).START_TIME_COUNTDOWN,
             "GAME_DURATION" : type(self).GAME_DURATION
         }
@@ -63,6 +66,8 @@ class GameState:
         if eventType == "Network":
             self.otherPlayerHistory.append(self.otherPlayerState)
             self.otherPlayerState = event
+            self.player_matrix.setPosition(event["Position"])
+            self.player_matrix.setQuat(event["Attitude"])
         elif eventType == "Frame Update":
             pass
             
@@ -138,7 +143,8 @@ class GameState:
         dt = datetime.now()
         if dt + timedelta(seconds=1) > self.currentState["Game Start Time"]:
             delta = self.currentState["Game End Time"] - dt
-            self.setScreenText(f"{delta.seconds // 3600}:{int(delta.seconds)}")
+            minutes = delta.seconds // 60
+            self.setScreenText(f"{minutes}:{int(delta.seconds) % 60}")
         
         if self.calculatePlayerDistances() < self.currentState["GAME_END_THRESHOLD"]:
             self.currentState["Game Stage"] = "End"
@@ -153,6 +159,7 @@ viz.fov(60)
 viz.MainView.collision( viz.ON )
 viz.mouse.setOverride(viz.ON)
 viz.go()
+
 
 # Add the world
 maze = viz.addChild('maze.osgb')
@@ -175,8 +182,6 @@ def frameUpdate():
     target_mailbox.send(state.getGameState())
     
     state.updateGameState(dict(), "Frame Update")
-
-
 
 # Start a timer that sends out data over the network every frame
 vizact.ontimer(0,frameUpdate)
