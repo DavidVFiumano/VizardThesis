@@ -81,11 +81,11 @@ class GameState:
         if len(event.keys()) > 0:
             self.currentState["Game Stage"] = "Connected Not Started"
             # better hope they don't start at the same time.
-            if event["Game Load Time"] < self.currentState["Game Load Time"]:
+            if event["Game Load Time"] > self.currentState["Game Load Time"]:
                 self.currentState["Role"] = "Seeker"
                 viz.MainView.setPosition(type(self).SEEKER_START_POSITION)
                 viz.MainView.setQuat(type(self).SEEKER_START_ATTITUDE)
-            elif event["Game Load Time"] > self.currentState["Game Load Time"]:
+            elif event["Game Load Time"] < self.currentState["Game Load Time"]:
                 self.currentState["Role"] = "Hider"
                 viz.MainView.setPosition(type(self).HIDER_START_POSITION)
                 viz.MainView.setQuat(type(self).HIDER_START_ATTITUDE)
