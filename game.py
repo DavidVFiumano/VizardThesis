@@ -1,5 +1,6 @@
 ﻿from math import sqrt
 from datetime import datetime
+from typing import Dict, Any
 
 import viz
 import vizact
@@ -57,10 +58,10 @@ class GameState:
         self.currentState["Attitude"] = viz.MainView.getQuat()
         
         if eventType == "Network":
-            if "Game State" in event:
-                self.currentState["Other Player Game State"] = event["Game State"]            
+            self.currentState["Other Player Game State"] = event
         elif eventType == "Frame Update":
             pass
+            
         
         if self.currentState["Game Stage"] == "Not Started":
             self.updateGameNotStarted(event)
@@ -76,9 +77,8 @@ class GameState:
     
     # once a connection occurs, sets the location & role of the player character. Doesn't record the other game state yet.
     # after the connection occurs, the game state changes to "Connected Not Started"
-    def updateGameNotStarted(self, event : viz.Event):
-        if "Game State" in event:
-            print("Game State waz h3r3")
+    def updateGameNotStarted(self, event : Dict[str, Any]):
+        if len(event.keys()) > 0:
             self.currentState["Game Stage"] = "Connected Not Started"
             # better hope they don't start at the same time.
             if event["Game State"]["Game Load Time"] < self.currentState["Game Load Time"]:
@@ -147,7 +147,6 @@ vizact.ontimer(0,frameUpdate)
 def onNetwork(e):
     if e.sender.upper() == target_machine:
         state.updateGameState(e[2], "Network")
-        #print("Network processed")
         
 # Register network to listen from incomming messages
 viz.callback(viz.NETWORK_EVENT, onNetwork)
