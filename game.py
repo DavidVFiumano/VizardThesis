@@ -38,10 +38,10 @@ class GameState:
             "Screen Text Position" : type(self).SCREEN_TEXT_CENTER_ISH,
             "Position" : viz.MainView.getPosition(),
             "Attitude" : viz.MainView.getQuat(),
-            "Other Player Game State" : dict(),
             "GAME END THRESHHOLD" : 0.65,
             "START_TIME_COUNTDOWN" : 10
         }
+        self.otherPlayerState = {k : None for k in self.currentState.keys()}
         
         # not really part of game state (determines other features of game state)
         # NOT STARTED
@@ -58,7 +58,7 @@ class GameState:
         self.currentState["Attitude"] = viz.MainView.getQuat()
         
         if eventType == "Network":
-            self.currentState["Other Player Game State"] = event
+            self.otherPlayerState = event
         elif eventType == "Frame Update":
             pass
             
