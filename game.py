@@ -114,7 +114,7 @@ class GameState:
         self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {self.currenState['START_TIME_COUNTDOWN']}...")
         self.currentState["Game Start Time"] = datetime.now() + timedelta(seconds=self.currenState['START_TIME_COUNTDOWN'])
         
-    def updateGameStateCountdown(self, event : Dict[str, Any]):
+    def updateGameCountdown(self, event : Dict[str, Any]):
         if self.currentState["Game Start Time"] > datetime.now():
             countDown = int((self.currentState["Game Start Time"] - datetime.now()).total_seconds())
             self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {countDown}...")
