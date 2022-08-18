@@ -38,15 +38,14 @@ class GameState:
             writer = DictWriter(csvfile, fieldnames=historyFields)
             writer.writeheader()
             writer.writerows(history)
-            
+        
         with open(otherHistoryFileName, "w", newline='') as csvfile:
             writer = DictWriter(csvfile, fieldnames=otherHistoryFields)
             writer.writeheader()
-            writer.writerows(otherHistory)
+            writer.writerows(otherHistory[1:]) # skip the first row, it will always be None
         
     
-    def __init__(self, playerName : str = "Bobward"):
-        self.playerName = playerName
+    def __init__(self):
         self.player_matrix = viz.Matrix()
         self.avatar = steve.Steve()
         self.avatar.setTracker(self.player_matrix)
@@ -58,6 +57,7 @@ class GameState:
         self.screenText.alignment = viz.ALIGN_CENTER_CENTER
         self.screenText.setScale(0.33, 0.33, 1, mode=viz.ABS_PARENT)
         self.currentState = {
+            "Participant Name" : None,
             "Timestamp" : loadTime,
             "Game Stage" : "Not Started", 
             "Game Load Time" : loadTime,
@@ -86,7 +86,7 @@ class GameState:
         return self.currentState
     
     def updateGameState(self, event : viz.Event, eventType : str):
-        if self.currentState["Game Stage"] != "Game Over":
+        if self.currentState["Game Stage"] != "Game Over" and self.currentState["Game Stage"] != "Not Started":
             self.history.append(self.currentState.copy())
             self.currentState["Timestamp"] = datetime.now()
             self.currentState["Position"] = viz.MainView.getPosition()
@@ -148,16 +148,21 @@ class GameState:
     
     def updateGameConnectedNotStarted(self, event : Dict[str, Any]):
         if self.currentState["Role"] == "Seeker":
-            viz.MainView.setPosition(type(self).SEEKER_START_POSITION)
-            viz.MainView.setQuat(type(self).SEEKER_START_ATTITUDE)
+            if self.currentState["Participant Name"] is None:
+                self.currentState["Participant Name"] = vizinput.input("Please enter the participant name")
+            else:
+                if self.otherPlayerState["Participant Name"] == self.currentState["Participant Name"]:
+                    self.currentState["Game Stage"] = "Countdown"
+                    self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {self.currentState['START_TIME_COUNTDOWN']}...")
+                    self.currentState["Game Start Time"] = datetime.now() + timedelta(seconds=self.currentState['START_TIME_COUNTDOWN'])
+                    self.currentState["Game End Time"] = datetime.now() + timedelta(minutes=self.currentState['GAME_DURATION'], seconds=self.currentState["START_TIME_COUNTDOWN"])
         else:
-            viz.MainView.setPosition(type(self).HIDER_START_POSITION)
-            viz.MainView.setQuat(type(self).HIDER_START_ATTITUDE)
-            
-        self.currentState["Game Stage"] = "Countdown"
-        self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {self.currentState['START_TIME_COUNTDOWN']}...")
-        self.currentState["Game Start Time"] = datetime.now() + timedelta(seconds=self.currentState['START_TIME_COUNTDOWN'])
-        self.currentState["Game End Time"] = datetime.now() + timedelta(minutes=self.currentState['GAME_DURATION'], seconds=self.currentState["START_TIME_COUNTDOWN"])
+            if self.otherPlayerState["Participant Name"] is not None:
+                self.currentState["Participant Name"] = self.otherPlayerState["Participant Name"]
+                self.currentState["Game Stage"] = "Countdown"
+                self.setScreenText(f"You are the {self.currentState['Role']}! Game starts in {self.currentState['START_TIME_COUNTDOWN']}...")
+                self.currentState["Game Start Time"] = datetime.now() + timedelta(seconds=self.currentState['START_TIME_COUNTDOWN'])
+                self.currentState["Game End Time"] = datetime.now() + timedelta(minutes=self.currentState['GAME_DURATION'], seconds=self.currentState["START_TIME_COUNTDOWN"])
         
     def updateGameCountdown(self, event : Dict[str, Any]):
         if self.currentState["Game Start Time"] > datetime.now():
@@ -195,9 +200,10 @@ class GameState:
             # Note to anyone editing this code - I haven't tried it but this funciton is called in an event loop
             # Generally, using join() or any other blocking call in an event loop is asking for trouble
             if not self.gameSaveThread.is_alive():
-                viz.quit()
-                    
-        
+                if self.gameCloseTime is None:
+                    self.gameCloseTime = datetime.now() + timedelta(seconds=60) # leave the game up for a minute.
+                elif self.gameCloseTime <= datetime.now():
+                    viz.quit()
     
 # vizard code below this line
 viz.setMultiSample(4)
