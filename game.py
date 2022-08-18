@@ -81,6 +81,9 @@ class GameState:
         
         # Game saving thread
         self.gameSaveThread = None
+        
+        # Game close time
+        self.gameCloseTime = None
     
     def getGameState(self):
         return self.currentState
