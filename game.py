@@ -97,16 +97,14 @@ class GameState:
         
         if eventType == "Network":
             self.otherPlayerState = event
-            if self.currentState["Game Stage"] == "Playing":
+            self.player_matrix.setPosition(event["Position"])
+            self.player_matrix.setQuat(event["Attitude"])
+            if self.currentState["Game Stage"] == "Playing" or True:
                 self.otherPlayerHistory.append(self.otherPlayerState)
-                self.player_matrix.setPosition(event["Position"])
-                self.player_matrix.setQuat(event["Attitude"])
-            
             
         elif eventType == "Frame Update":
             pass
             
-        
         if self.currentState["Game Stage"] == "Not Started":
             self.updateGameNotStarted(event)
         elif self.currentState["Game Stage"] == "Connected Not Started":
