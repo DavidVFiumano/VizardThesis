@@ -1,6 +1,10 @@
 ﻿from math import sqrt
 from datetime import datetime, timedelta
-from typing import Dict, Any
+from typing import List, Dict, Any
+from threading import Thread
+from os.path import join, abspath
+from os import makedirs
+from csv import DictWriter
 
 import viz
 import vizact
@@ -14,6 +18,7 @@ class GameState:
     START_TIME_COUNTDOWN = 10 # seconds
     GAME_DURATION = 30 # minutes
     GAME_END_THRESHOLD = 2
+    SAVED_GAME_DIRECTORY = "."
     SEEKER_START_POSITION = [5, 2, 10]
     SEEKER_START_ATTITUDE = [-0.0, -0.7157255673177139, 0.0, 0.6983816379943968]
     HIDER_START_POSITION = [0, 0, -10]
@@ -21,7 +26,27 @@ class GameState:
     
     SCREEN_TEXT_CENTER_ISH = [0.33,0.5,0]
     
-    def __init__(self):
+    
+    @staticmethod
+    def saveGameStates(directory : str, history : List[Dict[str, Any]], otherHistory : List[Dict[str, Any]]):
+        historyFileName = join(directory, "playerHistory.csv")
+        otherHistoryFileName = join(directory, "otherHistory.csv")
+        
+        historyFields = [f for f in history[0].keys()]
+        otherHistoryFields = [f for f in history[0].keys()]
+        with open(historyFileName, "w", newline='') as csvfile:
+            writer = DictWriter(csvfile, fieldnames=historyFields)
+            writer.writeheader()
+            writer.writerows(history)
+            
+        with open(otherHistoryFileName, "w", newline='') as csvfile:
+            writer = DictWriter(csvfile, fieldnames=otherHistoryFields)
+            writer.writeheader()
+            writer.writerows(otherHistory)
+        
+    
+    def __init__(self, playerName : str = "Bobward"):
+        self.playerName = playerName
         self.player_matrix = viz.Matrix()
         self.avatar = steve.Steve()
         self.avatar.setTracker(self.player_matrix)
@@ -53,15 +78,19 @@ class GameState:
         # NOT STARTED
         self.lastScreenTextUpdateTime = datetime.now()
         self.numDots = 3
+        
+        # Game saving thread
+        self.gameSaveThread = None
     
     def getGameState(self):
         return self.currentState
     
     def updateGameState(self, event : viz.Event, eventType : str):
-        self.history.append(self.currentState.copy())
-        self.currentState["Timestamp"] = datetime.now()
-        self.currentState["Position"] = viz.MainView.getPosition()
-        self.currentState["Attitude"] = viz.MainView.getQuat()
+        if self.currentState["Game Stage"] != "Game Over":
+            self.history.append(self.currentState.copy())
+            self.currentState["Timestamp"] = datetime.now()
+            self.currentState["Position"] = viz.MainView.getPosition()
+            self.currentState["Attitude"] = viz.MainView.getQuat()
         
         if eventType == "Network":
             self.otherPlayerHistory.append(self.otherPlayerState)
@@ -80,6 +109,8 @@ class GameState:
             self.updateGameCountdown(event)
         elif self.currentState["Game Stage"] == "Playing":
             self.updateGamePlaying(event)
+        elif self.currentState["Game Stage"] == "Game Over":
+            self.updateGameOver(event)
     
     def getScreenText(self):
         return self.screenText
@@ -149,7 +180,23 @@ class GameState:
         if self.calculatePlayerDistances() < self.currentState["GAME_END_THRESHOLD"]:
             self.currentState["Game Stage"] = "End"
             self.setScreenText(f"Game over! Seeker wins!")
+        elif dt > self.currentState["Game End Time"]:
+            self.currentState["Game Stage"] = "End"
+            self.setScreenText(f"Game over! Hider wins!")
         
+            
+    def updateGameOver(self, event : Dict[str, Any]):
+        if self.gameSaveThread is None:
+            saveDirectory = abspath(SAVED_GAME_DIRECTORY)
+            makedirs(saveDirectory, exist_ok=True)
+            self.gameSaveThread = Thread(target=type(self).saveGameStates, args=(join(saveDirectory, self.playerName), self.history, self.otherPlayerHistory))
+            self.gameSaveThread.start()
+        else:
+            # Note to anyone editing this code - I haven't tried it but this funciton is called in an event loop
+            # Generally, using join() or any other blocking call in an event loop is asking for trouble
+            if not self.gameSaveThread.is_alive():
+                viz.quit()
+                    
         
     
 # vizard code below this line
