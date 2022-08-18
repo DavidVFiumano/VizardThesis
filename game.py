@@ -95,11 +95,14 @@ class GameState:
             self.currentState["Position"] = viz.MainView.getPosition()
             self.currentState["Attitude"] = viz.MainView.getQuat()
         
-        if eventType == "Network" and self.currentState["Game Stage"] == "Playing":
-            self.otherPlayerHistory.append(self.otherPlayerState)
+        if eventType == "Network":
             self.otherPlayerState = event
-            self.player_matrix.setPosition(event["Position"])
-            self.player_matrix.setQuat(event["Attitude"])
+            if self.currentState["Game Stage"] == "Playing":
+                self.otherPlayerHistory.append(self.otherPlayerState)
+                self.player_matrix.setPosition(event["Position"])
+                self.player_matrix.setQuat(event["Attitude"])
+            
+            
         elif eventType == "Frame Update":
             pass
             
