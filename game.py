@@ -68,6 +68,8 @@ class GameState:
             "Screen Text Position" : type(self).SCREEN_TEXT_CENTER_ISH,
             "Position" : viz.MainView.getPosition(),
             "Attitude" : viz.MainView.getQuat(),
+            "OtherPlayerPosition" : None,
+            "OtherPlayerAttitude" : None,
             "GAME_END_THRESHOLD" : type(self).GAME_END_THRESHOLD,
             "START_TIME_COUNTDOWN" : type(self).START_TIME_COUNTDOWN,
             "GAME_DURATION" : type(self).GAME_DURATION
@@ -99,9 +101,10 @@ class GameState:
             self.otherPlayerState = event
             self.player_matrix.setPosition(event["Position"])
             self.player_matrix.setQuat(event["Attitude"])
-            if self.currentState["Game Stage"] == "Playing" or True:
+            self.currentState["OtherPlayerPosition"] = event["Position"]
+            self.currentState["OtherPlayerAttitude"] = event["Attitude"]
+            if self.currentState["Game Stage"] == "Playing":
                 self.otherPlayerHistory.append(self.otherPlayerState)
-            
         elif eventType == "Frame Update":
             pass
             
