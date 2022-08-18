@@ -178,10 +178,10 @@ class GameState:
             self.setScreenText(f"{minutes}:{int(delta.seconds) % 60}")
         
         if self.calculatePlayerDistances() < self.currentState["GAME_END_THRESHOLD"]:
-            self.currentState["Game Stage"] = "End"
+            self.currentState["Game Stage"] = "Game Over"
             self.setScreenText(f"Game over! Seeker wins!")
         elif dt > self.currentState["Game End Time"]:
-            self.currentState["Game Stage"] = "End"
+            self.currentState["Game Stage"] = "Game Over"
             self.setScreenText(f"Game over! Hider wins!")
         
             
