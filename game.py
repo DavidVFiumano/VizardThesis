@@ -42,7 +42,7 @@ class GameState:
         with open(otherHistoryFileName, "w", newline='') as csvfile:
             writer = DictWriter(csvfile, fieldnames=otherHistoryFields)
             writer.writeheader()
-            writer.writerows(otherHistory[1:]) # skip the first row, it will always be None
+            writer.writerows(otherHistory) # skip the first row, it will always be None
         
     
     def __init__(self):
@@ -95,7 +95,7 @@ class GameState:
             self.currentState["Position"] = viz.MainView.getPosition()
             self.currentState["Attitude"] = viz.MainView.getQuat()
         
-        if eventType == "Network":
+        if eventType == "Network" and self.currentState["Game Stage"] == "Playing":
             self.otherPlayerHistory.append(self.otherPlayerState)
             self.otherPlayerState = event
             self.player_matrix.setPosition(event["Position"])
