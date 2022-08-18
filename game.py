@@ -89,7 +89,7 @@ class GameState:
         return self.currentState
     
     def updateGameState(self, event : viz.Event, eventType : str):
-        if self.currentState["Game Stage"] != "Game Over" and self.currentState["Game Stage"] != "Not Started":
+        if self.currentState["Game Stage"] == "Playing":
             self.history.append(self.currentState.copy())
             self.currentState["Timestamp"] = datetime.now()
             self.currentState["Position"] = viz.MainView.getPosition()
