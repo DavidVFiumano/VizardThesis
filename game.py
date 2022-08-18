@@ -187,9 +187,9 @@ class GameState:
             
     def updateGameOver(self, event : Dict[str, Any]):
         if self.gameSaveThread is None:
-            saveDirectory = abspath(type(self).SAVED_GAME_DIRECTORY)
+            saveDirectory = join(abspath(type(self).SAVED_GAME_DIRECTORY), self.playerName)
             makedirs(saveDirectory, exist_ok=True)
-            self.gameSaveThread = Thread(target=type(self).saveGameStates, args=(join(saveDirectory, self.playerName), self.history, self.otherPlayerHistory))
+            self.gameSaveThread = Thread(target=type(self).saveGameStates, args=(saveDirectory, self.history, self.otherPlayerHistory))
             self.gameSaveThread.start()
         else:
             # Note to anyone editing this code - I haven't tried it but this funciton is called in an event loop
