@@ -195,6 +195,8 @@ class GameState:
             
     def updateGameOver(self, event : Dict[str, Any]):
         if self.gameSaveThread is None:
+            viz.mouse.setOverride(viz.ON)
+            viz.MainView.velocity([0,0,0])
             saveDirectory = join(abspath(type(self).SAVED_GAME_DIRECTORY), self.currentState["Participant Name"])
             makedirs(saveDirectory, exist_ok=True)
             self.gameSaveThread = Thread(target=type(self).saveGameStates, args=(saveDirectory, self.history, self.otherPlayerHistory))
