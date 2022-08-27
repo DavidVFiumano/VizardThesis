@@ -5,6 +5,7 @@ from threading import Thread
 from os.path import join, abspath
 from os import makedirs
 from csv import DictWriter
+from json import load, dumps
 
 import viz
 import vizact
@@ -57,6 +58,7 @@ class GameState:
         self.screenText.alignment = viz.ALIGN_CENTER_CENTER
         self.screenText.setScale(0.33, 0.33, 1, mode=viz.ABS_PARENT)
         self.currentState = {
+            "Frame Number" : 0,
             "Participant Name" : None,
             "Timestamp" : loadTime,
             "Game Stage" : "Not Started", 
@@ -91,6 +93,7 @@ class GameState:
         return self.currentState
     
     def updateGameState(self, event : viz.Event, eventType : str):
+        self.currentState["Frame Number"] += 1
         if self.currentState["Game Stage"] == "Playing":
             self.history.append(self.currentState.copy())
             self.currentState["Timestamp"] = datetime.now()
@@ -99,6 +102,7 @@ class GameState:
         
         if eventType == "Network":
             self.otherPlayerState = event
+            self.otherPlayerState["Frame Number"] = self.currentState["Frame Number"] # this is to synchronize the two records, so that this can be easily replayed later.
             self.player_matrix.setPosition(event["Position"])
             self.player_matrix.setQuat(event["Attitude"])
             self.currentState["OtherPlayerPosition"] = event["Position"]
