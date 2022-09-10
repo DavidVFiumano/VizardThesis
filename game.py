@@ -12,6 +12,54 @@ import vizact
 import vizinput
 import steve
 
+def calculateDistance(point1 : List[float], point2 : List[float]) -> float:
+    squaredResiduals = [(dim-odim)**2 for dim, odim in zip(point1, point2)]
+    return sqrt(sum(squaredResiduals))
+
+class Collectible:
+
+    COLLECTION_THRESHOLD = 2
+    COLLECTIBLES = list()
+    COLLECTED_COLLECTIBLES = list()
+    
+    def __init__(self, modelFilePath : str, position : List[float], name : str = None, scale : float = 1, spinAxis : List[float] = [0, 1, 0], spinDegPerSecond : float = 0.0):
+        self.obj = viz.addChild(modelFilePath)
+        self.obj.setPosition(position[0], position[1], position[2])
+        self.obj.setScale(scale, scale, scale)
+        self.obj.addAction(vizact.spin(spinAxis[0], spinAxis[1], spinAxis[2], spinDegPerSecond))
+        self.position = position
+        self.name = name
+        self.scale = scale
+        self.spinAxis = spinAxis
+        self.spinDegPerSecond = spinDegPerSecond
+        type(self).COLLECTIBLES.append(self) # we want to be able to call a single method to see how many collectibles have been collected, and also if the player is near any collectibles.
+    
+    def collect(self):
+        self.obj.remove(True)
+    
+    # finds any collectibles within COLLECTION_THRESHOLD units of a collectible.
+    # If any collectibles are close, it collects them
+    # returns all collectibles that were collected.
+    @classmethod
+    def collectAnyCollectibles(cls, position : List[float]):
+        newCollectibleList = list()
+        collected = list()
+        for collectible in cls.COLLECTIBLES:
+            dist = calculateDistance(position, collectible.position)
+            print(dist)
+            if dist < cls.COLLECTION_THRESHOLD:
+                collected.append(collectible)
+                cls.COLLECTED_COLLECTIBLES.append(collectible)
+            else:
+                newCollectibleList.append(collectible)
+        cls.COLLECTIBLES = newCollectibleList
+        return collected
+    
+    
+    @classmethod
+    def numCollected(cls) -> int:
+        return len(cls.COLLECTED_COLLECTIBLES)
+
 # Implements Game State Machine
 class GameState:
     
@@ -22,7 +70,7 @@ class GameState:
     SAVED_GAME_DIRECTORY = "SavedGames"
     SEEKER_START_POSITION = [5, 2, 10]
     SEEKER_START_ATTITUDE = [-0.0, -0.7157255673177139, 0.0, 0.6983816379943968]
-    HIDER_START_POSITION = [0, 0, -10]
+    HIDER_START_POSITION = [0, 2, -10]
     HIDER_START_ATTITUDE = [0, 0, 0, 1.0]
     
     SCREEN_TEXT_CENTER_ISH = [0.33,0.5,0]
@@ -131,8 +179,7 @@ class GameState:
         self.screenText.message(text)
         
     def calculatePlayerDistances(self):
-        squaredResiduals = [(dim-odim)**2 for dim, odim in zip(self.currentState["Position"], self.otherPlayerState["Position"])]
-        return sum(squaredResiduals)
+        return calculateDistance(self.currentState["Position"], self.currentState["OtherPlayerPosition"])
     
     # once a connection occurs, sets the location & role of the player character. Doesn't record the other game state yet.
     # after the connection occurs, the game state changes to "Connected Not Started"
@@ -191,7 +238,16 @@ class GameState:
         if dt + timedelta(seconds=1) > self.currentState["Game Start Time"]:
             delta = self.currentState["Game End Time"] - dt
             minutes = delta.seconds // 60
-            self.setScreenText(f"{minutes}:{int(delta.seconds) % 60}")
+            if delta.seconds < 0:
+                self.currentState["Game Stage"] = "Game Over"
+                self.setScreenText(f"Game over! Seeker wins, the hider could not escape in time!")
+            else:
+                self.setScreenText(f"{minutes}:{int(delta.seconds) % 60}")
+        
+        hiderPositionKey = "OtherPlayerPosition" if self.currentState["Role"] == "Seeker" else "Position"
+        hiderPosition = self.currentState[hiderPositionKey]
+        collectedCoins = Collectible.collectAnyCollectibles(hiderPosition) # list of collected coins is returned.
+        # TODO get the number of collected collectibles, maybe print out the names of the collected coins
         
         if self.calculatePlayerDistances() < self.currentState["GAME_END_THRESHOLD"]:
             self.currentState["Game Stage"] = "Game Over"
@@ -228,6 +284,9 @@ viz.go()
 
 # Add the world
 maze = viz.addChild('maze.osgb')
+
+# Add collectibles
+testcollectible = Collectible('Assets/Coin/scene.gltf', [8, 1, 10], scale=5.0, spinDegPerSecond=90)
 
 # The game state object modifies vizard state on creation, so we should probably 
 state = GameState()
