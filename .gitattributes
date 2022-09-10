@@ -1,3 +1,7 @@
 *.osgb filter=lfs diff=lfs merge=lfs -text
 Assets filter=lfs diff=lfs merge=lfs -text
 Assets/** filter=lfs diff=lfs merge=lfs -text
+Assets/Coin filter=lfs diff=lfs merge=lfs -text
+Assets/Coin/license.txt filter=lfs diff=lfs merge=lfs -text
+Assets/Coin/scene.bin filter=lfs diff=lfs merge=lfs -text
+Assets/Coin/scene.gltf filter=lfs diff=lfs merge=lfs -text
