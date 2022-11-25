@@ -1,7 +1,7 @@
 ﻿from AlexaEngine import StateMachine
 
-from GameStates import GameNotStarted
+from GameStates import GameNotStarted, ExperimentSetup
 
 # state machines
 gameNotStarted = GameNotStarted()
-gameStages = StateMachine((gameNotStarted, list()))
+experimentSetup = ExperimentSetup()

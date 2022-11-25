@@ -26,13 +26,13 @@ class ExperimentSetup(State):
         if self.previousState is not None:
             raise RuntimeError("This is supposed to be the first game state! No state should have been reached before this state.")
         saveDirectory = abspath(vizinput.directory("Select a game save location"))
-        self.localState["Role"] = vizinput.choose("What is this user's role?", ["Seeker", "Hider"])
-        self.saveDirectory = join(saveDirectory, self.localState["Role"])
+        #self.localState["Role"] = vizinput.choose("What is this user's role?", ["Seeker", "Hider"])
+        self.saveDirectory = join(saveDirectory)
         if isdir(self.saveDirectory):
             logging.info(f"Previous Save exists in this directory, deleting {self.saveDirectory}")
             remove(glob(join(self.saveDirectory, "*")))
     
-        makedirs()
+        makedirs(self.saveDirectory)
 
     # calls the handler
     # takes in global state, has access to the state configuration.
@@ -44,4 +44,4 @@ class ExperimentSetup(State):
     # returns a State object to change to that State
     # returns None to stay in the current state.
     def getNextState(self, availableStates : List[str], otherStates : Dict[str, LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> Union[str, None]:
-        return None if self.localState["DeterminedRole"] == "Hider" else None # TODO fix
+        return "GameNotStarted"

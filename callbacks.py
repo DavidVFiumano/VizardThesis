@@ -4,13 +4,16 @@ import viz
 
 from AlexaEngine import EventHandler
 
-networkHandler = EventHandler([])
-frameUpdateHandler = EventHandler([])
+from Events import NetworkEvent, FrameUpdateEvent
+from Globals import globalGameState
+
+networkHandler = EventHandler([globalGameState])
+frameUpdateHandler = EventHandler([globalGameState])
 
 @networkHandler.callback
-def networkCallback(event : viz.Event) -> Dict[str, Any]:
-    return event[2]
+def networkCallback(event : viz.NetworkEvent) -> NetworkEvent:
+    return NetworkEvent(event)
 
 @frameUpdateHandler.callback()
-def frameDrawCallback() -> Dict[str, Any]:
-    pass # TODO get general game state data and return it as an "event"
+def frameDrawCallback() -> FrameUpdateEvent:
+    return FrameUpdateEvent() # TODO get general game state data and return it as an "event"
