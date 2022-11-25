@@ -1,4 +1,8 @@
 ﻿from AlexaEngine import StateMachine
 
-globalGameState = StateMachine([(gameNotStarted, [experimentSetup])
-                                (experimentSetup, list())])
+from States import gameNotStarted, experimentSetup
+
+globalGameState = StateMachine([
+								(experimentSetup, [gameNotStarted]), # Stage 1
+								(gameNotStarted, list()) # Stage 2
+								])
