@@ -19,7 +19,7 @@ class GameNotStarted(State):
     
     # called when transitioning in to this state
     def transitionIn(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
-        pass
+        print("Successfully entered new state")
 
     # calls the handler
     # takes in global state, has access to the state configuration.
@@ -35,6 +35,7 @@ class GameNotStarted(State):
             # do error checking, make sure no one entered anything wrong before the game starts
         elif isinstance(event, FrameUpdateEvent):
             pass
+            #globalValues["TargetMailbox"].send(otherState["ExperimentSetup"])
 
     # decides whether or not to change the current state
     # returns a State object to change to that State

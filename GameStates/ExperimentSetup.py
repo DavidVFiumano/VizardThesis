@@ -2,6 +2,7 @@
 from os.path import abspath, join, isdir
 from os import makedirs, listdir
 from shutil import rmtree
+from threading import Lock
 import logging
 
 import vizinput
@@ -17,32 +18,53 @@ class ExperimentSetup(State):
     
     # called before the first time this state is transitioned to for the first time
     def initialize(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
-                
-        localState = {
-            "UserType" : None,
-            "OtherComputer" : None
-        }
-        self.setLocalState(localState)
+
         self.setupComplete = False
         self.networkMachineSpecified = False
         self.targetMachine = None
         self.targetMailbox = None
+        self.networkSettingsLock = Lock()
+        self.sentStateToSender = False
+        self.connectedToOtherMachine = False
         
     # transition in
     def transitionIn(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
-        pass
+        globalValues["GameState"] = dict()
+        globalValues["GameState"]["PlayerPosition"] = {
+            "Position" : viz.MainView.getPosition(),
+            "Attitude" : viz.MainView.getQuat()
+        }
+        globalValues["Configuration"] = {
+            "Role" : None,
+            "TargetMachine" : None,
+            "SaveDirectory" : None
+        }
+        globalValues["Objects"] = {
+            "Mailbox" : None
+        }
 
     def _setNetworkTargets(self, targetMachine : str, globalValues : Dict[str, Any]) -> bool:
-        #Add a mailbox from which to send messages. This is your outbox.
-        targetMailbox = viz.addNetwork(targetMachine)
-        if not targetMailbox.valid:
-            return False
-        
-        self.targetMachine = targetMachine
-        self.targetMailbox = targetMailbox
-        self.networkMachineSpecified = True
-        globalValues["TargetMailbox"] = targetMailbox
-        return True
+        with self.networkSettingsLock:
+            #Add a mailbox from which to send messages. This is your outbox.
+            targetMailbox = viz.addNetwork(targetMachine)
+            if not targetMailbox.valid:
+                return False
+            
+            self.targetMachine = targetMachine
+            self.targetMailbox = targetMailbox
+            self.networkMachineSpecified = True
+            return True
+
+    def _sendToNetworkTarget(self, *args, **kwargs):
+        with self.networkSettingsLock:
+            self.targetMailbox.send(*args, **kwargs)
+            
+    def _messageIsConnectionACK(self, event : NetworkEvent) -> bool:
+        return len(event.kwargs.keys()) == 0 and len(event.data) == 0
+            
+    def _otherConfigIsCompatible(self, otherConfig : State.LOCAL_STATE_TYPE, globalValues : Dict[str, Any]) -> bool:
+        otherRole = otherConfig["Role"]
+        return otherRole == "Seeker" if globalValues["Configuration"]["Role"] == "Hider" else otherRole == "Hider"
 
     # calls the handler
     # takes in global state, has access to the state configuration.
@@ -64,8 +86,8 @@ class ExperimentSetup(State):
                     vizinput.message("Selected directory exists and isn't empty, select another directory.")
                     return # don't allow anything to progress if we don't have a save directory.
                 
-                globalGameState["Role"] = role
-                globalValues["SaveDirectory"] = saveDirectory
+                globalValues["Configuration"]["Role"] = role
+                globalValues["Configuration"]["SaveDirectory"] = saveDirectory
                 
                 makedirs(saveDirectory, exist_ok=True)
                 self.setupComplete = True
@@ -74,9 +96,47 @@ class ExperimentSetup(State):
                 targetMachine = vizinput.input('Enter the address of the other machine')
                 if self._setNetworkTargets(targetMachine, globalValues):
                     self.networkMachineSpecified = True
+            
+            if self.networkMachineSpecified:
+                self._sendToNetworkTarget(**globalValues["Configuration"])
+            
+        elif isinstance(event, NetworkEvent) and self.setupComplete:
+            targetMachine = self.targetMachine
+            sender = event.sender
+            ans = 0
+            if targetMachine is None:
+                ans = vizinput.ask(f"Machine {sender} is attempting to connect but isn't the sender you selected ({targetMachine}). Do you want to connect to this comptuer instead?")
+            elif targetMachine != sender:
+                ans = vizinput.ask(f"Machine {sender} is attempting to connect but isn't the sender you selected ({targetMachine}). Do you want to connect to this comptuer instead?")
+                
+            if ans:
+                if self._setNetworkTargets(targetMachine, globalValues):
+                    return # in the case that this fails, return and try again next time they send a packet
+            
+            if not self._messageIsConnectionACK(event):
+                otherConfig = event.kwargs
+                if not self._otherConfigIsCompatible(otherConfig, globalValues):
+                    ans = vizinput.ask(f"The other player has an incompatible configuration, both players have the same roles. This computer's role is {globalValues['Configuration']['Role']}, is that correct? If yes, reconfigure the other computer.")
+                    if not ans:
+                        self.setupComplete = False
+                    else:
+                        return
+                else:
+                    self._sendToNetworkTarget()
+            else:
+                self.connectedToOtherMachine = True
+                self._sendToNetworkTarget()
+            
+            
+    
+    # called after the getNextState if the state has changed.
+    # if this state has been transitioned to before, the localState will be the same as the previous time transitionOut was called.
+    def transitionOut(self, nextState : str, otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
+        globalValues["Mailbox"] = self.targetMailbox
+            
                 
     # decides whether or not to change the current state
     # returns a State object to change to that State
     # returns None to stay in the current state.
     def getNextState(self, availableStates : List[str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> Union[str, None]:
-        return "GameNotStarted" if self.setupComplete and self.networkMachineSpecified else None
+        return "GameNotStarted" if self.setupComplete and self.connectedToOtherMachine else None

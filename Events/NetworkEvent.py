@@ -8,4 +8,5 @@ class NetworkEvent(VizardEvent):
         self.sender = networkEvent.sender
         self.address = networkEvent.address
         self.data = networkEvent.data
-        self.kwargs = {key : value for key, value in vars(networkEvent).items() if key not in ["sender", "address", "data"]}
+        self.port = networkEvent.port
+        self.kwargs = vars(networkEvent)['_NetworkEvent__props']
