@@ -1,2 +1,2 @@
-﻿from .GameNotStarted import GameNotStarted
-from .ExperimentSetup import ExperimentSetup
+﻿from .GlobalGameStates import GameNotStarted, ExperimentSetup
+from .PlayerStates import Sprinting, Walking

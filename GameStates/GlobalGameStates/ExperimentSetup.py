@@ -100,7 +100,7 @@ class ExperimentSetup(State):
             if self.networkMachineSpecified:
                 self._sendToNetworkTarget(**globalValues["Configuration"])
             
-        elif isinstance(event, NetworkEvent) and self.setupComplete:
+        elif isinstance(event, NetworkEvent) and self.setupComplete and self.networkMachineSpecified:
             targetMachine = self.targetMachine
             sender = event.sender
             ans = 0
@@ -112,6 +112,11 @@ class ExperimentSetup(State):
             if ans:
                 if self._setNetworkTargets(targetMachine, globalValues):
                     return # in the case that this fails, return and try again next time they send a packet
+            else:
+                ans = vizinput.ask(f"Would you like to reselect the machine you're connecting to?")
+                if ans:
+                    self.networkMachineSpecified = False
+                    return
             
             if not self._messageIsConnectionACK(event):
                 otherConfig = event.kwargs
