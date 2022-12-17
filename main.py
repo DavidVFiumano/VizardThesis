@@ -7,7 +7,7 @@ from Util import setWalkingSpeed
 def load():
 	viz.addChild('maze.osgb')
 	
-	viz.mouse(viz.ON)
+	viz.mouse.setOverride(viz.ON)
 	
 	viz.go()
 	vizact.ontimer(0, frameDrawCallback)

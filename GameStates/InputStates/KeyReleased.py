@@ -15,16 +15,13 @@ class KeyReleased(State):
 	# has read-only access to other state configurations through the state machine
 	def handle(self, event : Any, otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
 		if not isinstance(event, KeyReleaseEvent) and not isinstance(event, KeyPressEvent):
-			print(f"Event Type {type(event)} unexpected!")
-			self.transitionToKeyReleased = False
+			self.transitionToKeyPressed = False
 			return
 			
-		if event.key in self.keys:
+		if event.key in self.keys and isinstance(event, KeyPressEvent):
 			self.transitionToKeyPressed = True
 		else:
 			self.transitionToKeyPressed = False
 
 	def getNextState(self, availableStates : List[str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> Union[str, None]:
-		if self.transitionToKeyPressed:
-			print(f"One of {self.keys} pressed")
 		return availableStates[0] if self.transitionToKeyPressed else None

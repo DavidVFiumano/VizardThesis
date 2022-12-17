@@ -9,7 +9,6 @@ class Walking(State):
     
     # called when transitioning in to this state
     def transitionIn(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
-        print("Walking")
         setWalkingSpeed()
 
     # calls the handler

@@ -20,7 +20,6 @@ def networkCallback(event : viz.NetworkEvent) -> NetworkEvent:
 
 @frameUpdateHandler.callback
 def frameDrawCallback() -> FrameUpdateEvent:
-    print(playerSprintState.getCurrentState())
     return FrameUpdateEvent() # TODO get general game state data and return it as an "event"
     
 @keyDownHandler.callback

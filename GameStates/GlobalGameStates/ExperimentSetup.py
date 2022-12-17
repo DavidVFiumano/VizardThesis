@@ -137,6 +137,8 @@ class ExperimentSetup(State):
     # called after the getNextState if the state has changed.
     # if this state has been transitioned to before, the localState will be the same as the previous time transitionOut was called.
     def transitionOut(self, nextState : str, otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
+        viz.mouse.setTrap(viz.ON)
+        viz.mouse.setVisible(viz.OFF)
         globalValues["Mailbox"] = self.targetMailbox
             
                 
