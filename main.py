@@ -3,7 +3,7 @@ import vizact
 
 from Callbacks import networkCallback, frameDrawCallback, sprintKeyDownHandler, sprintKeyUpHandler
 from Util import setWalkingSpeed
-from Objects import AnimatedSprite
+from Objects import Collectible
 
 def load():
 	viz.addChild('maze.osgb')
@@ -25,8 +25,7 @@ def load():
 	viz.MainView.collision( viz.ON )
 	
 	# create collectibles
-	testSprite = AnimatedSprite('Assets/Coin/scene.gltf', position=[8, 1, 10], scale=5.0, spinDegPerSecond=90)
-		
+	testCollectible = Collectible('Assets/Coin/scene.gltf', position=[8, 1, 10], scale=5.0, spinDegPerSecond=90)
 	
 if __name__ == "__main__":
 	load()

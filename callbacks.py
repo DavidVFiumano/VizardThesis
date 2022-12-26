@@ -7,9 +7,10 @@ from AlexaEngine import EventHandler
 from Events import NetworkEvent, FrameUpdateEvent, KeyPressEvent, KeyReleaseEvent
 from Globals import globalGameState, playerSprintState
 from Inputs import keyStates
+from Objects import Collectible
 
-networkHandler = EventHandler([globalGameState])
-frameUpdateHandler = EventHandler([globalGameState, playerSprintState])
+networkHandler = EventHandler([globalGameState, Collectible.getCallback()])
+frameUpdateHandler = EventHandler([globalGameState, playerSprintState, Collectible.getCallback()])
 
 keyDownHandler = EventHandler(keyStates)
 keyUpHandler = EventHandler(keyStates)

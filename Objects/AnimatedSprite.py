@@ -1,5 +1,6 @@
 ﻿from typing import Iterable, Union
 from collections import abc
+from dataclasses import dataclass
 
 import viz
 import vizact
@@ -25,5 +26,13 @@ class AnimatedSprite:
 				
 		self.model.addAction(vizact.spin(spinAxis[0], spinAxis[1], spinAxis[2], spinDegPerSecond))
 		
+		self.name = name
+		
 	def getModel(self):
 		return self.model
+		
+	def remove(self, children : bool = True):
+		self.model.remove(children)
+		
+	def getName(self) -> str:
+		return self.name
