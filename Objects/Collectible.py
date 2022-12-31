@@ -11,6 +11,7 @@ from AlexaEngine import StateMachine, State, EventHandler
 from .AnimatedSprite import AnimatedSprite
 from Events import FrameUpdateEvent, NetworkEvent
 from Globals import globalGameState
+import Configuration
 
 # this system for collecting collectibles is not as performant as it could be
 # there is almost definitely a way to do this without so many python loops
@@ -51,15 +52,7 @@ class Collectible(AnimatedSprite):
 
 	@staticmethod
 	def _getRole() -> Optional[str]:
-		configuration = globalGameState.globalValues.get("Configuration", None)
-		if configuration is None: # if no configuration is set yet, return
-			return None
-		else:
-			role = configuration.get("Role", None)
-			if role is None:
-				return None
-			else:
-				return role
+		return Configuration.PLAYER_ROLE
 				
 	@staticmethod
 	@njit

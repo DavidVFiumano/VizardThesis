@@ -11,9 +11,10 @@ import viz
 from AlexaEngine import State
 
 from Events import NetworkEvent, FrameUpdateEvent
-from GlobalGameLog import globalGameState, globalGameStateHistory
-from Events import NetworkEvent, FrameUpdateEvent
+from Network import MAILBOX
+import Configuration
 
+# this experiment stage exists to make sure we get good configuraiton settings
 class ExperimentSetup(State):
     
     # called before the first time this state is transitioned to for the first time
@@ -34,16 +35,8 @@ class ExperimentSetup(State):
             "Position" : viz.MainView.getPosition(),
             "Attitude" : viz.MainView.getQuat()
         }
-        globalValues["Configuration"] = {
-            "Role" : None,
-            "TargetMachine" : None,
-            "SaveDirectory" : None
-        }
-        globalValues["Objects"] = {
-            "Mailbox" : None
-        }
 
-    def _setNetworkTargets(self, targetMachine : str, globalValues : Dict[str, Any]) -> bool:
+    def _setNetworkTargets(self, targetMachine : str) -> bool:
         with self.networkSettingsLock:
             #Add a mailbox from which to send messages. This is your outbox.
             targetMailbox = viz.addNetwork(targetMachine)
@@ -62,9 +55,9 @@ class ExperimentSetup(State):
     def _messageIsConnectionACK(self, event : NetworkEvent) -> bool:
         return len(event.kwargs.keys()) == 0 and len(event.data) == 0
             
-    def _otherConfigIsCompatible(self, otherConfig : State.LOCAL_STATE_TYPE, globalValues : Dict[str, Any]) -> bool:
+    def _otherConfigIsCompatible(self, otherConfig : State.LOCAL_STATE_TYPE) -> bool:
         otherRole = otherConfig["Role"]
-        return otherRole == "Seeker" if globalValues["Configuration"]["Role"] == "Hider" else otherRole == "Hider"
+        return otherRole == "Seeker" if Configuration.PLAYER_ROLE == "Hider" else otherRole == "Hider"
 
     # calls the handler
     # takes in global state, has access to the state configuration.
@@ -86,19 +79,19 @@ class ExperimentSetup(State):
                     vizinput.message("Selected directory exists and isn't empty, select another directory.")
                     return # don't allow anything to progress if we don't have a save directory.
                 
-                globalValues["Configuration"]["Role"] = role
-                globalValues["Configuration"]["SaveDirectory"] = saveDirectory
+                Configuration.PLAYER_ROLE = role
+                Configuration.SAVE_DIRECTORY = saveDirectory
                 
                 makedirs(saveDirectory, exist_ok=True)
                 self.setupComplete = True
             
             if not self.networkMachineSpecified:
                 targetMachine = vizinput.input('Enter the address of the other machine')
-                if self._setNetworkTargets(targetMachine, globalValues):
+                if self._setNetworkTargets(targetMachine):
                     self.networkMachineSpecified = True
             
             if self.networkMachineSpecified:
-                self._sendToNetworkTarget(**globalValues["Configuration"])
+                self._sendToNetworkTarget(Configuration.getConfiguration())
             
         elif isinstance(event, NetworkEvent) and self.setupComplete and self.networkMachineSpecified:
             targetMachine = self.targetMachine
@@ -110,7 +103,7 @@ class ExperimentSetup(State):
                 ans = vizinput.ask(f"Machine {sender} is attempting to connect but isn't the sender you selected ({targetMachine}). Do you want to connect to this comptuer instead?")
                 
             if ans:
-                if self._setNetworkTargets(targetMachine, globalValues):
+                if self._setNetworkTargets(targetMachine):
                     return # in the case that this fails, return and try again next time they send a packet
             else:
                 ans = vizinput.ask(f"Would you like to reselect the machine you're connecting to?")
@@ -120,8 +113,8 @@ class ExperimentSetup(State):
             
             if not self._messageIsConnectionACK(event):
                 otherConfig = event.kwargs
-                if not self._otherConfigIsCompatible(otherConfig, globalValues):
-                    ans = vizinput.ask(f"The other player has an incompatible configuration, both players have the same roles. This computer's role is {globalValues['Configuration']['Role']}, is that correct? If yes, reconfigure the other computer.")
+                if not self._otherConfigIsCompatible(otherConfig):
+                    ans = vizinput.ask(f"The other player has an incompatible configuration, both players have the same roles. This computer's role is {Configuration.PLAYER_ROLE}, is that correct? If yes, reconfigure the other computer.")
                     if not ans:
                         self.setupComplete = False
                     else:
@@ -139,7 +132,7 @@ class ExperimentSetup(State):
     def transitionOut(self, nextState : str, otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
         viz.mouse.setTrap(viz.ON)
         viz.mouse.setVisible(viz.OFF)
-        globalValues["Mailbox"] = self.targetMailbox
+        MAILBOX = self.targetMailbox
             
                 
     # decides whether or not to change the current state
