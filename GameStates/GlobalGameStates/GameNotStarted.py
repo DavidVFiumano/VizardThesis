@@ -1,6 +1,6 @@
 ﻿from typing import Dict, Any, Union, List
 
-import vizinput
+import viz
 
 from AlexaEngine import State
 
@@ -13,13 +13,11 @@ class GameNotStarted(State):
         
         localState = dict()
         self.setLocalState(localState)
-        
-        self.otherMachineConnected = False
-        self.otherMachineSpecified = False
     
     # called when transitioning in to this state
     def transitionIn(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
-        print("Successfully entered new state")
+        viz.addText("When you're ready to start, press the 'F' key", parent=viz.SCREEN)
+
 
     # calls the handler
     # takes in global state, has access to the state configuration.

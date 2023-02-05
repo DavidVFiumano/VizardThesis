@@ -40,8 +40,8 @@ class ExperimentSetup(State):
         with self.networkSettingsLock:
             #Add a mailbox from which to send messages. This is your outbox.
             targetMailbox = viz.addNetwork(targetMachine)
-            if not targetMailbox.valid:
-                return False
+            #if not targetMailbox.valid:
+            #    return False
             
             self.targetMachine = targetMachine
             self.targetMailbox = targetMailbox
@@ -56,6 +56,7 @@ class ExperimentSetup(State):
         return len(event.kwargs.keys()) == 0 and len(event.data) == 0
             
     def _otherConfigIsCompatible(self, otherConfig : State.LOCAL_STATE_TYPE) -> bool:
+        print(otherConfig)
         otherRole = otherConfig["Role"]
         return otherRole == "Seeker" if Configuration.PLAYER_ROLE == "Hider" else otherRole == "Hider"
 
