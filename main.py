@@ -7,9 +7,9 @@ from Objects import Collectible
 
 def load():
 	viz.addChild('maze.osgb')
+	#model = viz.addChild('Assets/Hexagon_Environment_Thesis.osgb')
 	viz.clearcolor(viz.SKYBLUE)
-	child = viz.addChild('Assets/Coin/scene.gltf', viz.DEFAULT_CANVAS_SCREEN)
-	#child.setPosition(0.5)
+
 	
 	#viz.mouse.setOverride(viz.ON)
 	
