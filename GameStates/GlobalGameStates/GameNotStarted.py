@@ -1,6 +1,7 @@
 ﻿from typing import Dict, Any, Union, List
 
 import viz
+import vizact
 
 from AlexaEngine import State
 
@@ -8,15 +9,14 @@ from Events import NetworkEvent, FrameUpdateEvent
 
 class GameNotStarted(State):
     
-    # called before the first time this state is transitioned to for the first time
-    def initialize(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
-        
-        localState = dict()
-        self.setLocalState(localState)
-    
     # called when transitioning in to this state
     def transitionIn(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
-        viz.addText("When you're ready to start, press the 'F' key", parent=viz.SCREEN)
+        pass
+        #viz.mouse.setTrap(viz.ON)
+        #viz.mouse.setVisible(viz.OFF)
+        #self.text = viz.addText("When you're ready to start, press the 'F' key", parent=viz.SCREEN)
+        #self.text.setScale(0.5)
+        #text.setPosition(0.3, 0.3)
 
 
     # calls the handler

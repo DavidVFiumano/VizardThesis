@@ -20,8 +20,8 @@ class Collectible(AnimatedSprite):
 	
 	CollectibleCounter : int = 0
 	CollectibleLock : RLock = RLock()
-	SpawnedCollectibles : Dict[str, "Collectible"] = dict()
-	CollectedCollectibles : Dict[str, "Collectible"] = dict()
+	SpawnedCollectibles : List["Collectible"] = list()
+	CollectedCollectibles : List["Collectible"] = list()
 	
 	def __init__(self, modelFilePath : str, *, 
 						collectionDistance : float = 1.0,

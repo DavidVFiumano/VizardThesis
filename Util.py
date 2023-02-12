@@ -1,14 +1,14 @@
 ﻿import viz
 import vizact
 
-walkingSpeed = 0.05
+walkingSpeed = 0.01
 runningSpeed = 0.15
 
 funcsSet = False
 forwardFunc = None
 leftFunc = None
 backwardFunc = None
-rightFunc = None
+rightFunc = None	
 
 def resetSpeed():
 	global funcsSet, forwardFunc, leftFunc, backwardFunc, rightFunc
