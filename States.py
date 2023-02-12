@@ -30,7 +30,7 @@ sprintBar.disable()
 sprintTimeSeconds = 1
 recoveryTimeSeconds = 10
 exhaustionRecoveryPercent = 0.5
-barFadeSeconds = 2.0
+barFadeSeconds = 2.0 # TODO delete
 
 playerSprinting = Sprinting(sprintTimeSeconds, sprintBar,
 							sprintTheme, exhaustedTheme)

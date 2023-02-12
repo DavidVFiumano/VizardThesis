@@ -12,8 +12,8 @@ class GameNotStarted(State):
     # called when transitioning in to this state
     def transitionIn(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
         pass
-        #viz.mouse.setTrap(viz.ON)
-        #viz.mouse.setVisible(viz.OFF)
+        viz.mouse.setTrap(viz.ON)
+        viz.mouse.setVisible(viz.OFF)
         #self.text = viz.addText("When you're ready to start, press the 'F' key", parent=viz.SCREEN)
         #self.text.setScale(0.5)
         #text.setPosition(0.3, 0.3)

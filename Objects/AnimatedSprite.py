@@ -16,7 +16,7 @@ class AnimatedSprite:
 							
 		self.model = viz.addChild(modelFilePath)
 		if position is not None:
-			self.model.setPosition(position[0], position[1], position[2])
+			self.model.setPosition(*position)
 		
 		if scale is not None:
 			if not isinstance(scale, abc.Iterable):
