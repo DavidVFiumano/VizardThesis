@@ -6,7 +6,7 @@ from Util import setWalkingSpeed
 from Objects import Collectible
 
 def printLocation():
-	print(viz.MainView.getPosition())
+	print(f"At {viz.MainView.getPosition()} facing {viz.MainView.getQuat()}")
 
 def load():
 	viz.addChild('maze.osgb')
@@ -32,7 +32,8 @@ def load():
 	viz.MainView.collision( viz.ON )
 	
 	# create collectibles
-	c0 = Collectible('Assets/Coin/scene.gltf', position=[8, 1, 10], scale=5.0, spinDegPerSecond=90)
+	c0 = Collectible('Assets/Coin/scene.gltf', position=[8, 1, 10], scale=5.0, spinDegPerSecond=90, value=5)
+	c0.getModel().color([1, 0, 0])
 	c1 = Collectible('Assets/Coin/scene.gltf', position=[-3.5, 1, 1], scale=5.0, spinDegPerSecond=90)
 	c2 = Collectible('Assets/Coin/scene.gltf', position=[-10, 1, -4], scale=5.0, spinDegPerSecond=90)
 	c3 = Collectible('Assets/Coin/scene.gltf', position=[3, 1, -10], scale=5.0, spinDegPerSecond=90)

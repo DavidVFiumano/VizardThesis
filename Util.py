@@ -1,8 +1,8 @@
 ﻿import viz
 import vizact
 
-walkingSpeed = 0.01
-runningSpeed = 0.15
+walkingSpeed = 0.03
+runningSpeed = 0.1
 
 funcsSet = False
 forwardFunc = None

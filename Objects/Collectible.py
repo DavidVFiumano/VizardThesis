@@ -32,7 +32,7 @@ class Collectible(AnimatedSprite):
 			cls.theme.highBackColor = cls.CollectibleProgressBarColor
 			cls.theme.borderColor = (0, 0, 0, 1)
 			cls.theme.backColor = (0.1, 0.1, 0.1, 0.5)
-			cls.CollectibleProgressBar = viz.addProgressBar(f"0/?")
+			cls.CollectibleProgressBar = viz.addProgressBar(f"0/? Points")
 			cls.CollectibleProgressBar.set(0)
 			cls.CollectibleProgressBar.setPosition(0.93, 0.95)
 			cls.CollectibleProgressBar.setScale(0.5, 0.75)
@@ -52,7 +52,7 @@ class Collectible(AnimatedSprite):
 		cls.CollectedValue += collectible.value
 		cls.TotalCollected += 1
 		cls.CollectibleProgressBar.set(cls.CollectedValue/cls.TotalValue)
-		cls.CollectibleProgressBar.message(f"{cls.CollectedValue}/{cls.TotalValue}")
+		cls.CollectibleProgressBar.message(f"{cls.CollectedValue}/{cls.TotalValue} Points")
 	
 	def __init__(self, modelFilePath : str, *, 
 						collectionDistance : float = 1.0,
