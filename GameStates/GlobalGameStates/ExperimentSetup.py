@@ -41,15 +41,11 @@ class ExperimentSetup(State):
                     return
                     
                 saveDirectory = abspath(saveDirectory)
-                roles = ["Seeker", "Hider"]
-                role = roles[vizinput.choose("What type of player is this user?", roles)]
-                saveDirectory = join(saveDirectory, role)
-                
+
                 if isdir(saveDirectory) and len(listdir(saveDirectory)) > 0:
                     vizinput.message("Selected directory exists and isn't empty, select another directory.")
                     return # don't allow anything to progress if we don't have a save directory.
                 
-                Configuration.PLAYER_ROLE = role
                 Configuration.SAVE_DIRECTORY = saveDirectory
                 
                 makedirs(saveDirectory, exist_ok=True)

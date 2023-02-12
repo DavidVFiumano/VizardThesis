@@ -25,9 +25,10 @@ sprintBar = viz.addProgressBar("")
 sprintBar.setPosition(0.5, 0.05)
 sprintBar.set(0.95)
 sprintBar.setTheme(sprintTheme)
+sprintBar.disable()
 
 sprintTimeSeconds = 1
-recoveryTimeSeconds = 2.5
+recoveryTimeSeconds = 10
 exhaustionRecoveryPercent = 0.5
 barFadeSeconds = 2.0
 
