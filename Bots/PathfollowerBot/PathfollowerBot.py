@@ -41,7 +41,11 @@ class PathfollowerBot(Bot):
 	def setPath(self, path, endOfPathBehavior):
 		self.actionList = list()
 		for i, point in enumerate(path):
-			moveAction = moveTo(point["Position"], speed=point["Speed"])
+			if i > 0:
+				moveAction = moveTo(point["Position"], speed=point["Speed"])
+			else:
+				moveAction = sequence(spinTo(point=path[(i+1)%len(path)]["Position"], speed=point["DegreesPerSecond"]), 
+										moveTo(point["Position"], speed=point["Speed"]))
 			turnAction = spinTo(point=path[(i+1)%len(path)]["Position"], speed=point["DegreesPerSecond"])
 			self.actionList.append(moveAction)
 			self.actionList.append(turnAction)
@@ -75,7 +79,6 @@ class PathfollowerBot(Bot):
 		self.avatar.addAction(lookAndFollow)
 	
 	def resetPath(self):
-		print("Headed back to the track")
 		self.setPath(self.path, self.endOfPathBehavior)
 	
 	def frameCallback(self, event : FrameUpdateEvent):
@@ -88,11 +91,11 @@ class PathfollowerBot(Bot):
 			else:
 				self.chasing = False
 		
-		else:
+		elif FrameUpdateEvent.FrameNumber % self.updateChasePathEveryNFrames == 0:
 			if not (self.canHearPlayer(playerPosition) or self.canSeePlayer(playerPosition)):
 				self.chasing = False
 				self.resetVizNodeFunction(self.avatar)
 				self.resetPath()
-			elif FrameUpdateEvent.FrameNumber % self.updateChasePathEveryNFrames == 0:
+			else:
 				self.chasePlayer(playerPosition, FrameUpdateEvent.PlayerVelocity)
 				
