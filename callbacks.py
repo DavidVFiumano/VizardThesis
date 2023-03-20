@@ -8,9 +8,10 @@ from Events import NetworkEvent, FrameUpdateEvent, KeyPressEvent, KeyReleaseEven
 from Globals import globalGameState, playerSprintState
 from Inputs import keyStates
 from Objects import Collectible
+from Bots.Bot import Bot
 
 networkHandler = EventHandler([globalGameState, Collectible.getCallback()])
-frameUpdateHandler = EventHandler([globalGameState, playerSprintState, Collectible.getCallback()])
+frameUpdateHandler = EventHandler([globalGameState, playerSprintState, Collectible.getCallback(), Bot.getCallback()])
 
 keyDownHandler = EventHandler(keyStates)
 keyUpHandler = EventHandler(keyStates)

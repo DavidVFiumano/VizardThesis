@@ -83,7 +83,7 @@ def load():
 	]
 	
 	followerBot = steve.Steve()
-	bot = PathfollowerBot(followerBot, path, 10.0)
+	bot = PathfollowerBot(followerBot, path, 10.0, 5.0, 5.0, 1.0, 45.0)
 	
 	viz.MainView.setPosition([12.347145080566406, 1.8200000524520874, -7.345220565795898])
 	viz.MainView.setQuat([-0.0, -0.45234599709510803, 0.0, 0.8918425440788269])
