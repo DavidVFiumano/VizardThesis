@@ -1,4 +1,4 @@
-﻿from typing import Iterable, Tuple, Dict, Union
+﻿from typing import Iterable, Tuple, Dict, Union, Callable
 from math import sqrt
 
 from viz import ActionData, FOREVER, VizNode, MainView
@@ -15,7 +15,9 @@ class PathfollowerBot(Bot):
 	def __init__(self, avatar : VizNode, path : PATH_TYPE, seeingDistance : float, fieldOfView : float, hearingDistance : float, 
 						chaseSpeed : float, chaseTurnDegPerSecond : float, 
 						chasingSeeingDistance : float = None, chasingFieldOfView : float = None, chasingHearingDistance : float = None, 
-						updateChasePathEveryNFrames : int = 15, endOfPathBehavior : str = "repeat"):
+						updateChasePathEveryNFrames : int = 15, endOfPathBehavior : str = "repeat",
+						chaseVizNodeFunction : Callable[[VizNode], None] = lambda x : None, 
+						resetVizNodeFunction : Callable[[VizNode], None] = lambda x : None):
 		super().__init__(avatar, path[0]["Position"], MainView.getQuat())
 		self.path = path
 		self.currentAction : Union[None, ActionData] = None
@@ -30,7 +32,11 @@ class PathfollowerBot(Bot):
 		self.chasingFieldOfView = chasingFieldOfView
 		self.chasing = False
 		self.updateChasePathEveryNFrames = updateChasePathEveryNFrames
-		self.setPath(self.path, endOfPathBehavior)
+		self.endOfPathBehavior = endOfPathBehavior
+		self.setPath(self.path, self.endOfPathBehavior)
+		self.chaseVizNodeFunction = chaseVizNodeFunction
+		self.resetVizNodeFunction = resetVizNodeFunction
+		self.resetVizNodeFunction(avatar)
 	
 	def setPath(self, path, endOfPathBehavior):
 		self.actionList = list()
@@ -69,13 +75,15 @@ class PathfollowerBot(Bot):
 		self.avatar.addAction(lookAndFollow)
 	
 	def resetPath(self):
-		self.setPath(self.path, endOfPathBehavior)
+		print("Headed back to the track")
+		self.setPath(self.path, self.endOfPathBehavior)
 	
 	def frameCallback(self, event : FrameUpdateEvent):
 		playerPosition = FrameUpdateEvent.PlayerPosition
 		if not self.chasing:
 			if self.canHearPlayer(playerPosition) or self.canSeePlayer(playerPosition):
 				self.chasing = True
+				self.chaseVizNodeFunction(self.avatar)
 				self.chasePlayer(playerPosition, FrameUpdateEvent.PlayerVelocity)
 			else:
 				self.chasing = False
@@ -83,6 +91,7 @@ class PathfollowerBot(Bot):
 		else:
 			if not (self.canHearPlayer(playerPosition) or self.canSeePlayer(playerPosition)):
 				self.chasing = False
+				self.resetVizNodeFunction(self.avatar)
 				self.resetPath()
 			elif FrameUpdateEvent.FrameNumber % self.updateChasePathEveryNFrames == 0:
 				self.chasePlayer(playerPosition, FrameUpdateEvent.PlayerVelocity)
