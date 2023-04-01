@@ -90,7 +90,7 @@ def load():
 		
 	
 	followerBot = steve.Steve()
-	bot = PathfollowerBot(followerBot, path, 10.0, 5.0, 5.0, 1.0, 180.0, chasingHearingDistance=10.0, chaseVizNodeFunction=angryMode, resetVizNodeFunction=patrolMode)
+	bot = PathfollowerBot(followerBot, path, 10.0, 180.0, 5.0, 1.0, 180.0, chasingHearingDistance=10.0, chaseVizNodeFunction=angryMode, resetVizNodeFunction=patrolMode, debug=True)
 	
 	viz.MainView.setPosition([12.347145080566406, 1.8200000524520874, -7.345220565795898])
 	viz.MainView.setQuat([-0.0, -0.45234599709510803, 0.0, 0.8918425440788269])

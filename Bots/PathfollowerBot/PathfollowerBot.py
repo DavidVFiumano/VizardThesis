@@ -1,8 +1,9 @@
 ﻿from typing import Iterable, Tuple, Dict, Union, Callable
-from math import sqrt
+from math import sqrt, acos, radians, degrees
 
-from viz import ActionData, FOREVER, VizNode, MainView
-from vizact import moveTo, spinTo, sequence, parallel
+from viz import ActionData, FOREVER, VizNode, MainView, Matrix, Vector
+import viz
+from vizact import moveTo, spinTo, sequence, parallel, onupdate
 
 from Events import FrameUpdateEvent
 from .. import Bot
@@ -12,13 +13,22 @@ PATH_TYPE = Iterable[Dict[str, Union[Tuple[float, float, float], Tuple[float, fl
 
 class PathfollowerBot(Bot):
 	
+	def updatePosAndMatrix(self):
+		self.avatarCurrentOrientation = self.avatar.getMatrix()
+		self.avatarCurrentPosition = self.avatar.getPosition()
+	
 	def __init__(self, avatar : VizNode, path : PATH_TYPE, seeingDistance : float, fieldOfView : float, hearingDistance : float, 
-						chaseSpeed : float, chaseTurnDegPerSecond : float, 
+						chaseSpeed : float, chaseTurnDegPerSecond : float,
 						chasingSeeingDistance : float = None, chasingFieldOfView : float = None, chasingHearingDistance : float = None, 
 						updateChasePathEveryNFrames : int = 15, endOfPathBehavior : str = "repeat",
 						chaseVizNodeFunction : Callable[[VizNode], None] = lambda x : None, 
-						resetVizNodeFunction : Callable[[VizNode], None] = lambda x : None):
+						resetVizNodeFunction : Callable[[VizNode], None] = lambda x : None,
+						debug : bool = False):
 		super().__init__(avatar, path[0]["Position"], MainView.getQuat())
+		self.avatar = avatar
+		self.avatarCurrentOrientation = avatar.getMatrix()
+		self.avatarCurrentPosition = avatar.getPosition()
+		self.avatarUpdater = onupdate(0, self.updatePosAndMatrix)
 		self.path = path
 		self.currentAction : Union[None, ActionData] = None
 		self.currentPositionInPathList = 0
@@ -27,9 +37,6 @@ class PathfollowerBot(Bot):
 		self.hearingDistance = hearingDistance
 		self.chaseSpeed = chaseSpeed
 		self.chaseTurnDegPerSecond = chaseTurnDegPerSecond
-		self.chasingHearingDistance = chasingHearingDistance
-		self.chasingSeeingDistance = chasingSeeingDistance
-		self.chasingFieldOfView = chasingFieldOfView
 		self.chasing = False
 		self.updateChasePathEveryNFrames = updateChasePathEveryNFrames
 		self.endOfPathBehavior = endOfPathBehavior
@@ -37,6 +44,15 @@ class PathfollowerBot(Bot):
 		self.chaseVizNodeFunction = chaseVizNodeFunction
 		self.resetVizNodeFunction = resetVizNodeFunction
 		self.resetVizNodeFunction(avatar)
+		self.chasingHearingDistance = chasingHearingDistance
+		self.chasingSeeingDistance = chasingSeeingDistance
+		self.chasingFieldOfView = chasingFieldOfView
+		self.debug = debug
+		if debug:
+			self.arrow = viz.addChild('arrow.wrl')
+			self.arrow.setScale([1, 1, 1])
+		else:
+			self.arrow = None
 	
 	def setPath(self, path, endOfPathBehavior):
 		self.actionList = list()
@@ -62,15 +78,74 @@ class PathfollowerBot(Bot):
 		sumOfSquaredResiduals = sum([(v - c)**2 for v, c in zip(viewPosition, collectiblePosition)])
 		return sqrt(sumOfSquaredResiduals)
 	
+	@classmethod
+	def pointInView(cls, observerPosition : Tuple[float, float, float],
+					observerMatrix : Tuple[float, float, float, float],
+					fovDegrees : float,
+					point : Tuple[float, float, float],
+					maxDistance : float, arrow : VizNode) -> bool:
+						
+		#orientation_matrix.transpose()
+
+		# Compute the forward direction of the observer
+		forward_direction = viz.Matrix(observerMatrix) * Vector(1, 0, 0)
+
+		# Compute the direction vector from the observer's position to the point
+		direction_to_point = Vector(point) - Vector(observerPosition)
+		
+		if direction_to_point.length() > maxDistance:
+			return False
+
+		# Normalize the direction vectors
+		if arrow is not None:
+			arrow.setPosition(observerPosition)
+			default_arrow_direction = viz.Vector(0, 0, -1)
+			rotation_axis = default_arrow_direction.cross(direction_to_point)
+			rotation_angle = degrees(acos(default_arrow_direction.dot(direction_to_point) / direction_to_point.length()))
+			arrow.setAxisAngle(*list(rotation_axis), rotation_angle)
+			
+			
+		forward_direction.normalize()
+		direction_to_point.normalize()
+
+		# Calculate the dot product of the two direction vectors
+		dot_product = forward_direction.dot(direction_to_point)
+
+		# Calculate the angle (in radians) between the forward direction and the direction to the point
+		angle = acos(dot_product)
+
+		# Convert the field-of-view to radians
+		fov_radians = radians(fovDegrees)
+
+		# Check if the angle is within half of the field-of-view
+		if angle <= fov_radians / 2:
+			return True  # The point is in view
+		else:
+			return False  # The point is not in view
+			
+	@staticmethod
+	# Function to check if a line between two points intersects any objects in the Vizard environment
+	def objectInTheWay(start_point : Tuple[float, float, float], end_point : Tuple[float, float, float]) -> bool:
+		# Perform a raycast from start_point to end_point
+		result = viz.intersect(start_point, end_point)
+		return result.valid
+	
 	def canSeePlayer(self, playerPosition : Tuple[float, float, float]) -> bool:
-		return False # For now
+		botPosition = self.avatar.getPosition()
+		botMatrix = self.avatar.head.getQuat()
+		print(botMatrix)
+		isInFOV = type(self).pointInView(botPosition, botMatrix, self.fieldOfView, playerPosition, self.seeingDistance, arrow=self.arrow)
+		isObstructed = type(self).objectInTheWay(botPosition, playerPosition)
+		#print(f"Player {'is' if isInFOV else 'is not'} in view, and {'is' if isObstructed else 'is not'} obstructed.")
+		return isInFOV and (not isObstructed)
 		
 	def canHearPlayer(self, playerPosition : Tuple[float, float, float]) -> bool:
-		if not self.chasing:
-			return self.hearingDistance is not None and type(self)._distance(playerPosition, self.avatar.getPosition()) < self.hearingDistance
-		else:
-			hearingDistance = self.hearingDistance if self.chasingHearingDistance is None else self.chasingHearingDistance
-			return hearingDistance is not None and type(self)._distance(playerPosition, self.avatar.getPosition()) < hearingDistance
+		#if not self.chasing:
+		#	return self.hearingDistance is not None and type(self)._distance(playerPosition, self.avatar.getPosition()) < self.hearingDistance
+		#else:
+		#	hearingDistance = self.hearingDistance if self.chasingHearingDistance is None else self.chasingHearingDistance
+		#	return hearingDistance is not None and type(self)._distance(playerPosition, self.avatar.getPosition()) < hearingDistance
+		return False
 			
 	def chasePlayer(self, playerPosition : Tuple[float, float, float], playerVelocityVector : Tuple[float, float, float]):
 		self.avatar.clearActions()
