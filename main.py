@@ -4,7 +4,7 @@ import vizact
 from Callbacks import networkCallback, frameDrawCallback, sprintKeyDownHandler, sprintKeyUpHandler
 from Util import setWalkingSpeed
 from Objects import Collectible
-from Bots.PathfollowerBot import PathfollowerBot
+from Bots import PathFollowingBot
 
 import steve
 
@@ -82,15 +82,21 @@ def load():
 		},
 	]
 	
-	def angryMode(st : steve.Steve):
-		st.setEyeColor([1, 0, 0])
+	path = [tuple(p["Position"]) for p in path]
+	
+	def angryMode(st : PathFollowingBot):
+		st.avatar.setEyeColor([1, 0, 0])
 		
-	def patrolMode(st : steve.Steve):
-		st.setEyeColor([0, 0, 0])
+	def patrolMode(st : PathFollowingBot):
+		st.avatar.setEyeColor([0, 0, 0])
+		
+	def alertMode(st : PathFollowingBot):
+		st.avatar.setEyeColor([1, 1, 0])
 		
 	
 	followerBot = steve.Steve()
-	bot = PathfollowerBot(followerBot, path, 10.0, 180.0, 5.0, 1.0, 180.0, chasingHearingDistance=10.0, chaseVizNodeFunction=angryMode, resetVizNodeFunction=patrolMode, debug=True)
+	#bot = PathfollowerBot(followerBot, path, 10.0, 180.0, 5.0, 1.0, 180.0, chasingHearingDistance=10.0, chaseVizNodeFunction=angryMode, resetVizNodeFunction=patrolMode, debug=True)
+	bot = PathFollowingBot(followerBot, path, change_node_theme_to_chase_mode=angryMode, change_node_theme_to_walk_mode=patrolMode, change_node_theme_to_alert_mode=alertMode)
 	
 	viz.MainView.setPosition([12.347145080566406, 1.8200000524520874, -7.345220565795898])
 	viz.MainView.setQuat([-0.0, -0.45234599709510803, 0.0, 0.8918425440788269])

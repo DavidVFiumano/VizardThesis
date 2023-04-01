@@ -15,7 +15,7 @@ class Bot:
 		type(self).Bots.append(self)
 		
 	def frameCallback(self, event : FrameUpdateEvent):
-		pass
+		return event
 	
 	@classmethod
 	def getCallback(cls):
