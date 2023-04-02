@@ -95,8 +95,10 @@ def load():
 		
 	
 	followerBot = steve.Steve()
-	#bot = PathfollowerBot(followerBot, path, 10.0, 180.0, 5.0, 1.0, 180.0, chasingHearingDistance=10.0, chaseVizNodeFunction=angryMode, resetVizNodeFunction=patrolMode, debug=True)
-	bot = PathFollowingBot(followerBot, path, change_node_theme_to_chase_mode=angryMode, change_node_theme_to_walk_mode=patrolMode, change_node_theme_to_alert_mode=alertMode)
+	bot = PathFollowingBot(followerBot, path, 
+							change_node_theme_to_chase_mode=angryMode, 
+							change_node_theme_to_walk_mode=patrolMode, 
+							change_node_theme_to_alert_mode=alertMode)
 	
 	viz.MainView.setPosition([12.347145080566406, 1.8200000524520874, -7.345220565795898])
 	viz.MainView.setQuat([-0.0, -0.45234599709510803, 0.0, 0.8918425440788269])

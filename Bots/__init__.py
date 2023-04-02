@@ -1,2 +1,2 @@
 ﻿from .Bot import Bot
-from .PathfollowerBot import PathfollowerBot, PathFollowingBot
+from .PathFollowingBot import PathFollowingBot

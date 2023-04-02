@@ -63,6 +63,8 @@ class FollowPathState(State):
 
             if bot.is_at_position(target_pos):
                 self.localState["path_index"] += 1
+        else:
+            self.localState["path_index"] = 0
 
     def getNextState(self, availableStates: List[str], otherStates: Dict[str, State.LOCAL_STATE_TYPE], globalValues: Dict[str, Any]) -> Union[str, None]:
         player_position = self.player_position
@@ -76,7 +78,6 @@ class FollowPathState(State):
         can_see_player = bot.can_see_point(player_position, fov, visual_range)
 
         if can_hear_player or (has_unobstructed_view and can_see_player):
-            print(f"Robot has lost the the player")
             return "ChasePlayerState"
 
         return None
@@ -108,7 +109,6 @@ class ChasePlayerState(State):
         
         
         if not(can_hear_player or (has_unobstructed_view and can_see_player)):
-            print(f"Robot found the player. It {'can' if can_hear_player else 'cannot'} hear the player, and it {'can' if can_hear_player else 'cannot'} see the player")
             return "LookForPlayerState"
 
         return None
@@ -122,7 +122,7 @@ class LookForPlayerState(State):
     def handle(self, event: FrameUpdateEvent, otherStates: Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
         bot = globalValues["bot"]
         last_known_pos = globalValues["last_known_player_position"]
-        if bot.distance_to(last_known_pos) < 0.001:
+        if bot.is_at_position(last_known_pos):
             self.localState["bot_still_looking"] = bot.look_around(5, 135, 5)
         else:
             bot.move_towards(last_known_pos)
@@ -141,21 +141,25 @@ class LookForPlayerState(State):
         
         
         if can_hear_player or (has_unobstructed_view and can_see_player):
-            print(f"Robot found the player. It {'can' if can_hear_player else 'cannot'} hear the player, and it {'can' if can_hear_player else 'cannot'} see the player")
-            print(bot.distance_to(player_position))
             return "ChasePlayerState"
         elif not self.localState["bot_still_looking"]:
             return "FollowPathState"
             
         return None
+        
+    # called after the getNextState if the state has changed.
+    # if this state has been transitioned to before, the localState will be the same as the previous time transitionOut was called.
+    def transitionOut(self, nextState : str, otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
+        bot = globalValues["bot"]
+        bot.reset_look_around_time()
 
 
 class PathFollowingBot(Bot):
     def __init__(self, avatar: viz.VizNode, path: List[Tuple[float, float, float]], 
                         speed: float = 1.25, turn_duration: float = 0.25, 
-                        passive_hearing_range: float = 3.0, chasing_hearing_range : float = 5.0,
+                        passive_hearing_range: float = 5.0, chasing_hearing_range : float = 7.5,
                         passive_fov_degrees : float = 60, chasing_fov_degrees : float = 75, 
-                        passive_vision_distance : float = 5.0, chasing_vision_distance : float = 7.5,
+                        passive_vision_distance : float = 7.5, chasing_vision_distance : float = 12.5,
                         change_node_theme_to_chase_mode : Callable[[viz.VizNode],None] = lambda x : None,
                         change_node_theme_to_walk_mode : Callable[[viz.VizNode],None] = lambda x : None,
                         change_node_theme_to_alert_mode : Callable[[viz.VizNode],None] = lambda x : None,):
@@ -260,10 +264,13 @@ class PathFollowingBot(Bot):
             return True
 
         return False
-        
+    
+    def reset_look_around_time(self):
+        self.look_around_timer = 0
+    
     def look_around(self, speed: float, amplitude: float, time : float) -> bool:
         if self.look_around_timer > time:
-            self.look_around_timer = 0
+            self.reset_look_around_time()
             return False
         current_euler = self.avatar.getEuler()
         self.look_around_timer += viz.getFrameElapsed()
