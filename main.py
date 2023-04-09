@@ -2,7 +2,7 @@
 import vizact
 
 from Callbacks import frameDrawCallback, sprintKeyDownHandler, sprintKeyUpHandler
-from Util import setWalkingSpeed
+from PlayerMovement import setWalkingSpeed
 from Objects import Collectible
 from Bots import PathFollowingBot
 

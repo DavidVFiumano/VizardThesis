@@ -6,7 +6,7 @@ import vizact
 
 from AlexaEngine import State
 
-from Util import setWalkingSpeed
+from PlayerMovement import setWalkingSpeed
 from Inputs import sprintKeyState
 
 class Walking(State):

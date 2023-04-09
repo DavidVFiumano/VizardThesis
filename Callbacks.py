@@ -6,7 +6,7 @@ from AlexaEngine import EventHandler
 
 from Events import NetworkEvent, FrameUpdateEvent, KeyPressEvent, KeyReleaseEvent
 from Globals import globalGameState, playerSprintState
-from Util import moveMainViewFromKeys
+from PlayerMovement import moveMainViewFromKeys
 from Inputs import keyStates
 from Objects import Collectible
 from Bots.Bot import Bot

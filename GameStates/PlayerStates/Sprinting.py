@@ -5,7 +5,7 @@ import viz
 
 from AlexaEngine import State
 
-from Util import setSprintingSpeed
+from PlayerMovement import setSprintingSpeed
 from Inputs import sprintKeyState
 
 class Sprinting(State):
