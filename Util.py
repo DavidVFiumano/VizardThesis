@@ -1,10 +1,11 @@
 ﻿import viz
 import vizact
+import math
 
 from Events import FrameUpdateEvent
 
-walkingSpeed = 2.5 # unit/sec
-sprintingSpeed = 15 # unit/sec
+walkingSpeed = 6 # unit/sec
+sprintingSpeed = 12 # unit/sec
 currentSpeed = walkingSpeed
 
 funcsSet = False
@@ -31,8 +32,19 @@ def moveMainViewFromKeys(event : FrameUpdateEvent):
 	
 	zSpeed = forwardSpeed - backSpeed
 	xSpeed = rightSpeed - leftSpeed
-	viz.MainView.move(xSpeed, 0, zSpeed)
 	
+	if zSpeed != 0 or xSpeed != 0:
+		# normalize this so the speed is never greater than the currentSpeed in units/sec
+		# if two buttons are pressed without this, the speed doubles.
+		maxSpeedForFrame = currentSpeed * timeSinceLastFrame	
+		scalingFactor = maxSpeedForFrame / (math.sqrt(zSpeed**2 + xSpeed**2)) # L/|v| for length L and vector V scales vector to L
+		
+		xSpeed = xSpeed*scalingFactor
+		zSpeed = zSpeed*scalingFactor
+		# TODO maybe normalize these to ensure it never exceeds currentSpeed when two buttons are pressed?
+		viz.MainView.move(xSpeed, 0, zSpeed)
+	
+		print(f"frameMovement: {abs(xSpeed) + abs(zSpeed)} or {math.sqrt(xSpeed**2 + zSpeed**2)/timeSinceLastFrame} unit/sec.")
 
 def setWalkingSpeed():
 	global currentSpeed, walkingSpeed
