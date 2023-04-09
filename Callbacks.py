@@ -6,19 +6,15 @@ from AlexaEngine import EventHandler
 
 from Events import NetworkEvent, FrameUpdateEvent, KeyPressEvent, KeyReleaseEvent
 from Globals import globalGameState, playerSprintState
+from Util import moveMainViewFromKeys
 from Inputs import keyStates
 from Objects import Collectible
 from Bots.Bot import Bot
 
-networkHandler = EventHandler([globalGameState, Collectible.getCallback()])
-frameUpdateHandler = EventHandler([globalGameState, playerSprintState, Collectible.getCallback(), Bot.getCallback()])
+frameUpdateHandler = EventHandler([globalGameState, playerSprintState, Collectible.getCallback(), Bot.getCallback(), moveMainViewFromKeys])
 
 keyDownHandler = EventHandler(keyStates)
 keyUpHandler = EventHandler(keyStates)
-
-@networkHandler.callback
-def networkCallback(event : viz.NetworkEvent) -> NetworkEvent:
-    return NetworkEvent(event)
 
 @frameUpdateHandler.callback
 def frameDrawCallback() -> FrameUpdateEvent:

@@ -1,8 +1,11 @@
 ﻿import viz
 import vizact
 
-walkingSpeed = 0.03
-runningSpeed = 0.1
+from Events import FrameUpdateEvent
+
+walkingSpeed = 2.5 # unit/sec
+sprintingSpeed = 15 # unit/sec
+currentSpeed = walkingSpeed
 
 funcsSet = False
 forwardFunc = None
@@ -17,23 +20,26 @@ def resetSpeed():
 		leftFunc.remove()
 		backwardFunc.remove()
 		rightFunc.remove()
+		
+def moveMainViewFromKeys(event : FrameUpdateEvent):
+	global currentSpeed
+	timeSinceLastFrame = viz.getFrameElapsed()
+	forwardSpeed = int(viz.key.isDown('w', False))*currentSpeed*timeSinceLastFrame
+	leftSpeed = int(viz.key.isDown('a', False))*currentSpeed*timeSinceLastFrame
+	rightSpeed = int(viz.key.isDown('d', False))*currentSpeed*timeSinceLastFrame
+	backSpeed = int(viz.key.isDown('s', False))*currentSpeed*timeSinceLastFrame
+	
+	zSpeed = forwardSpeed - backSpeed
+	xSpeed = rightSpeed - leftSpeed
+	viz.MainView.move(xSpeed, 0, zSpeed)
+	
 
 def setWalkingSpeed():
-	global funcsSet, forwardFunc, leftFunc, backwardFunc, rightFunc
-	resetSpeed()
-	funcsSet = True
-	forwardFunc = vizact.whilekeydown('w', viz.MainView.move, 0, 0, walkingSpeed)
-	leftFunc = vizact.whilekeydown('a', viz.MainView.move, -1*walkingSpeed, 0, 0)
-	backwardFunc = vizact.whilekeydown('s', viz.MainView.move, 0, 0, -1*walkingSpeed)
-	rightFunc = vizact.whilekeydown('d', viz.MainView.move, walkingSpeed, 0, 0)
+	global currentSpeed, walkingSpeed
+	currentSpeed = walkingSpeed
 	
 	
 def setSprintingSpeed():
-	global funcsSet, forwardFunc, leftFunc, backwardFunc, rightFunc
-	resetSpeed()
-	funcsSet = True
-	forwardFunc = vizact.whilekeydown('w', viz.MainView.move, 0, 0, runningSpeed)
-	leftFunc = vizact.whilekeydown('a', viz.MainView.move, -1*walkingSpeed, 0, 0)
-	backwardFunc = vizact.whilekeydown('s', viz.MainView.move, 0, 0, -1*walkingSpeed)
-	rightFunc = vizact.whilekeydown('d', viz.MainView.move, walkingSpeed, 0, 0)
+	global currentSpeed, sprintingSpeed
+	currentSpeed = sprintingSpeed
 	

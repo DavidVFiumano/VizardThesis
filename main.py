@@ -1,7 +1,7 @@
 ﻿import viz
 import vizact
 
-from Callbacks import networkCallback, frameDrawCallback, sprintKeyDownHandler, sprintKeyUpHandler
+from Callbacks import frameDrawCallback, sprintKeyDownHandler, sprintKeyUpHandler
 from Util import setWalkingSpeed
 from Objects import Collectible
 from Bots import PathFollowingBot
@@ -21,7 +21,6 @@ def load():
 	
 	viz.go()
 	vizact.ontimer(0, frameDrawCallback)
-	viz.callback(viz.NETWORK_EVENT, networkCallback)
 	
 	vizact.onkeydown(viz.KEY_SHIFT_L, sprintKeyDownHandler, viz.KEY_SHIFT_L)
 	vizact.onkeyup(viz.KEY_SHIFT_L, sprintKeyUpHandler, viz.KEY_SHIFT_L)
@@ -95,7 +94,7 @@ def load():
 		
 	
 	followerBot = steve.Steve()
-	bot = PathFollowingBot(followerBot, path, 
+	bot = PathFollowingBot("TestFollower", followerBot, path, 
 							change_node_theme_to_chase_mode=angryMode, 
 							change_node_theme_to_walk_mode=patrolMode, 
 							change_node_theme_to_alert_mode=alertMode)

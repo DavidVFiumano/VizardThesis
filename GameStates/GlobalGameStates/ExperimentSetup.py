@@ -11,6 +11,7 @@ import viz
 from AlexaEngine import State
 
 from Events import NetworkEvent, FrameUpdateEvent
+from LoggerFactory import LoggerFactory
 import Configuration
 
 # this experiment stage exists to make sure we get good configuraiton settings
@@ -55,7 +56,7 @@ class ExperimentSetup(State):
     # called after the getNextState if the state has changed.
     # if this state has been transitioned to before, the localState will be the same as the previous time transitionOut was called.
     def transitionOut(self, nextState : str, otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
-        pass
+        LoggerFactory.setParentDirectory(Configuration.SAVE_DIRECTORY)
                 
     # decides whether or not to change the current state
     # returns a State object to change to that State

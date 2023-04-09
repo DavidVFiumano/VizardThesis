@@ -15,6 +15,3 @@ playerSprintState = StateMachine([
 									(playerWalking, [playerSprinting]),
 									(playerSprinting, [playerWalking])
 									])
-									
-playerPosition = viz.MainView.getPosition()
-playerVelocity = (0.0, 0.0, 0.0)

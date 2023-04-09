@@ -1,4 +1,6 @@
 ﻿from typing import List, Tuple, Union, Dict, Any, Callable
+from logging import LogRecord, Logger, INFO
+from os.path import abspath
 import math
 
 import viz
@@ -6,10 +8,42 @@ import vizmat
 
 from AlexaEngine import State, StateMachine, EventHandler
 from Events import FrameUpdateEvent
+from LoggerFactory import LoggerFactory, LoggerNotInitializedError, CSVFormatter
 
 from .. import Bot
 
 # GPT-4 wrote this code (mostly). Editted by David Fiumano
+loggerName = "PathFollowerLogger"
+csvFormatter = CSVFormatter(fieldnames=["FrameNumber", "BotName", "CurrentState", "NextState", "BotX", "BotY", "BotZ", "PlayerX", "PlayerY", "PlayerZ", "DistanceToPlayer", "CanSeePlayer", "CanHearPlayer", "IsObstructed"])
+
+def logTransition(stateTransitionLogger : Logger, frameNumber : int, botName : str, currentState : str, nextState : str, 
+                            botPosition : Tuple[float, float, float], playerPosition : Tuple[float, float, float], 
+                            canSeePlayer : bool, canHearPlayer : bool, isObstructed : bool):
+    
+    botX = botPosition[0]
+    botY = botPosition[1]
+    botZ = botPosition[2]
+    playerX = playerPosition[0]
+    playerY = playerPosition[1]
+    playerZ = playerPosition[2]
+    
+    fieldValues = {
+        "FrameNumber" : frameNumber,
+        "BotName" : botName,
+        "CurrentState" : currentState,
+        "NextState" : nextState,
+        "BotX" : botX,
+        "BotY" : botY,
+        "BotZ" : botZ,
+        "PlayerX" : playerX,
+        "PlayerY" : playerY,
+        "PlayerZ" : playerZ,
+        "DistanceToPlayer" : math.sqrt(sum((x2 - x1)**2 for x1, x2 in zip(botPosition, playerPosition))),
+        "CanSeePlayer" : canSeePlayer,
+        "CanHearPlayer" : canHearPlayer,
+        "IsObstructed" : isObstructed
+    }
+    stateTransitionLogger.info("", extra=fieldValues)
 
 def quat_to_mat(quat: Tuple[float, float, float, float]) -> viz.Matrix:
     x = quat[0]
@@ -41,7 +75,6 @@ def quat_to_mat(quat: Tuple[float, float, float, float]) -> viz.Matrix:
 
     return mat
 
-
 class FollowPathState(State):
 
     def initialize(self, previousState: Union[None, str], otherStates: Dict[str, State.LOCAL_STATE_TYPE], globalValues: Dict[str, Any]) -> None:
@@ -55,6 +88,7 @@ class FollowPathState(State):
         path = globalValues["path"]
         path_index = self.localState["path_index"]
         self.player_position = event.PlayerPosition
+        self.frame_number = event.FrameNumber
 
         if path_index < len(path):
             target_pos = path[path_index]
@@ -73,11 +107,20 @@ class FollowPathState(State):
         fov = self.localState["vision_fov"]
         bot = globalValues["bot"]
 
-        can_hear_player = bot.distance_to(player_position) <= hearing_range
+        can_hear_player = bot.can_hear_point(player_position, hearing_range)
         has_unobstructed_view = bot.has_unobstructed_view(player_position)
         can_see_player = bot.can_see_point(player_position, fov, visual_range)
 
+        try:
+            stateTransitionLogger = LoggerFactory.getLogger(loggerName, formatter=csvFormatter, file="PathFollowerBotsLog.csv")
+        except LoggerNotInitializedError:
+            return None
+            
         if can_hear_player or (has_unobstructed_view and can_see_player):
+            logTransition(stateTransitionLogger, self.frame_number, bot.name,
+                            "FollowPathState", "ChasePlayerState", 
+                            bot.get_position(), player_position,
+                            can_see_player, can_hear_player, not has_unobstructed_view)
             return "ChasePlayerState"
 
         return None
@@ -92,6 +135,7 @@ class ChasePlayerState(State):
         bot = globalValues["bot"]
         player_position = event.PlayerPosition
         self.playerPosition = player_position
+        self.frame_number = event.FrameNumber
         globalValues["last_known_player_position"] = self.playerPosition
         bot.move_towards(player_position)
         bot.look_at(self.playerPosition)
@@ -103,12 +147,20 @@ class ChasePlayerState(State):
         fov = self.localState["vision_fov"]
         bot = globalValues["bot"]
         
-        can_hear_player = bot.distance_to(player_position) <= hearing_range
+        can_hear_player = bot.can_hear_point(player_position, hearing_range)
         has_unobstructed_view = bot.has_unobstructed_view(player_position)
         can_see_player = bot.can_see_point(player_position, fov, visual_range)
         
-        
+        try:
+            stateTransitionLogger = LoggerFactory.getLogger(loggerName, formatter=csvFormatter, file="PathFollowerBotsLog.csv")
+        except LoggerNotInitializedError:
+            return None
+            
         if not(can_hear_player or (has_unobstructed_view and can_see_player)):
+            logTransition(stateTransitionLogger, self.frame_number, bot.name, 
+                            "ChasePlayerState", "LookForPlayerState", 
+                            bot.get_position(), player_position,
+                            can_see_player, can_hear_player, not has_unobstructed_view)
             return "LookForPlayerState"
 
         return None
@@ -121,6 +173,7 @@ class LookForPlayerState(State):
 
     def handle(self, event: FrameUpdateEvent, otherStates: Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
         bot = globalValues["bot"]
+        self.frame_number = event.FrameNumber
         last_known_pos = globalValues["last_known_player_position"]
         if bot.is_at_position(last_known_pos):
             self.localState["bot_still_looking"] = bot.look_around(5, 135, 5)
@@ -135,14 +188,26 @@ class LookForPlayerState(State):
         fov = self.localState["vision_fov"]
         bot = globalValues["bot"]
         
-        can_hear_player = bot.distance_to(player_position) <= hearing_range
+        can_hear_player = bot.can_hear_point(player_position, hearing_range)
         has_unobstructed_view = bot.has_unobstructed_view(player_position)
         can_see_player = bot.can_see_point(player_position, fov, visual_range)
         
-        
+        try:
+            stateTransitionLogger = LoggerFactory.getLogger(loggerName, formatter=csvFormatter, file="PathFollowerBotsLog.csv")
+        except LoggerNotInitializedError:
+            return None
+            
         if can_hear_player or (has_unobstructed_view and can_see_player):
+            logTransition(stateTransitionLogger, self.frame_number, bot.name,
+                            "LookForPlayerState", "ChasePlayerState", 
+                            bot.get_position(), player_position,
+                            can_see_player, can_hear_player, not has_unobstructed_view)
             return "ChasePlayerState"
         elif not self.localState["bot_still_looking"]:
+            logTransition(stateTransitionLogger, self.frame_number, bot.name,
+                            "LookForPlayerState", "FollowPathState", 
+                            bot.get_position(), player_position,
+                            can_see_player, can_hear_player, not has_unobstructed_view)
             return "FollowPathState"
             
         return None
@@ -155,20 +220,21 @@ class LookForPlayerState(State):
 
 
 class PathFollowingBot(Bot):
-    def __init__(self, avatar: viz.VizNode, path: List[Tuple[float, float, float]], 
+    def __init__(self, name : str, avatar: viz.VizNode, path: List[Tuple[float, float, float]], 
                         speed: float = 1.25, turn_duration: float = 0.25, 
                         passive_hearing_range: float = 5.0, chasing_hearing_range : float = 7.5,
                         passive_fov_degrees : float = 60, chasing_fov_degrees : float = 75, 
                         passive_vision_distance : float = 7.5, chasing_vision_distance : float = 12.5,
                         change_node_theme_to_chase_mode : Callable[[viz.VizNode],None] = lambda x : None,
                         change_node_theme_to_walk_mode : Callable[[viz.VizNode],None] = lambda x : None,
-                        change_node_theme_to_alert_mode : Callable[[viz.VizNode],None] = lambda x : None,):
+                        change_node_theme_to_alert_mode : Callable[[viz.VizNode],None] = lambda x : None):
         start_position = path[0]
         facing_direction = viz.Vector(path[1]) - viz.Vector(path[0])
         start_quat = vizmat.LookToQuat(facing_direction)
 
         super().__init__(avatar, start_position, start_quat)
-
+        
+        self.name = name
         self.path = path
         self.speed = speed
         self.turn_duration = turn_duration
@@ -229,6 +295,9 @@ class PathFollowingBot(Bot):
     def is_at_position(self, target: Tuple[float, float, float]) -> bool:
         current_position = self.avatar.getPosition()
         return vizmat.Distance(current_position, target) < self.speed * viz.getFrameElapsed()
+    
+    def get_position(self) -> Tuple[float, float, float]:
+        return self.avatar.getPosition()
 
     def distance_to(self, target: Tuple[float, float, float]) -> float:
         current_position = self.avatar.getPosition()
@@ -244,6 +313,12 @@ class PathFollowingBot(Bot):
     def has_unobstructed_view(self, target: Tuple[float, float, float]) -> bool:
         result = viz.intersect(self.avatar.getPosition(), target)
         return not result.valid
+        
+    def can_hear_point(self, point : Tuple[float, float, float], maxHearingDistance : float) -> bool:
+        if self.has_unobstructed_view(point):
+            return self.distance_to(point) < maxHearingDistance
+        else:
+            return self.distance_to(point) < 0.5*maxHearingDistance
         
     def can_see_point(self, point: Tuple[float, float, float], fov: float, maxDistance: float) -> bool:
         if self.distance_to(point) > maxDistance:
