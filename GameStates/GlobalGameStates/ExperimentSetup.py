@@ -10,7 +10,7 @@ import viz
 
 from AlexaEngine import State
 
-from Events import NetworkEvent, FrameUpdateEvent
+from Events import FrameUpdateEvent
 from LoggerFactory import LoggerFactory
 import Configuration
 

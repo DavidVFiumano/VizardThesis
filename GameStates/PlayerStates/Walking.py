@@ -15,8 +15,7 @@ class Walking(State):
                        sprintBar : viz.VizProgressBar, 
                        exhaustionRecoveryPercent : float, 
                        sprintTheme : viz.Theme, 
-                       exhaustionTheme : viz.Theme,
-                       fadeInNSeconds : float):
+                       exhaustionTheme : viz.Theme):
         self.recoveryTimeSeconds = recoveryTimeSeconds
         self.sprintBar = sprintBar
         self.lastFrameTime = None
@@ -25,7 +24,6 @@ class Walking(State):
         self.exhausted = False
         self.exhaustionTheme = exhaustionTheme
         self.sprintTheme = sprintTheme
-        self.fadeInASecond = 1.0 / float(fadeInNSeconds)
         
     def initialize(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
         self.sprintBar.set(1)

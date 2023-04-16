@@ -2,16 +2,15 @@
 
 from AlexaEngine import StateMachine
 
-from States import gameNotStarted, experimentSetup, playerSprinting, playerWalking
+from States import gameNotStarted, experimentSetup, playingGame, gameEndedByRobot, gameEndedByTimer, gameEndedInVictory
 
 # global game state
 globalGameState = StateMachine([
-								(experimentSetup, [gameNotStarted]), # Stage 1
-								(gameNotStarted, list()) # Stage 2
+								(experimentSetup, [gameNotStarted]),
+								(gameNotStarted, [playingGame]),
+								(playingGame, [gameEndedByRobot, gameEndedByTimer, gameEndedInVictory]),
+								(gameEndedByRobot, list()),
+								(gameEndedByTimer, list()),
+								(gameEndedInVictory, list())
 								])
 								
-# player movement state
-playerSprintState = StateMachine([
-									(playerWalking, [playerSprinting]),
-									(playerSprinting, [playerWalking])
-									])

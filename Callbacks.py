@@ -4,14 +4,14 @@ import viz
 
 from AlexaEngine import EventHandler
 
-from Events import NetworkEvent, FrameUpdateEvent, KeyPressEvent, KeyReleaseEvent
-from Globals import globalGameState, playerSprintState
+from Events import FrameUpdateEvent, KeyPressEvent, KeyReleaseEvent
+from Globals import globalGameState
 from PlayerMovement import moveMainViewFromKeys
 from Inputs import keyStates
 from Objects import Collectible
-from Bots.Bot import Bot
+from Bots import PathFollowingBot
 
-frameUpdateHandler = EventHandler([globalGameState, playerSprintState, Collectible.getCallback(), Bot.getCallback(), moveMainViewFromKeys])
+frameUpdateHandler = EventHandler([globalGameState, Collectible.getCallback(), PathFollowingBot.getCallback(), moveMainViewFromKeys])
 
 keyDownHandler = EventHandler(keyStates)
 keyUpHandler = EventHandler(keyStates)

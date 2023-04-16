@@ -220,7 +220,10 @@ class LookForPlayerState(State):
 
 
 class PathFollowingBot(Bot):
+    BotList : List["PathFollowingBot"] = list()
+    
     def __init__(self, name : str, avatar: viz.VizNode, path: List[Tuple[float, float, float]], 
+                        catch_distance : float = 1.25,
                         speed: float = 1.25, turn_duration: float = 0.25, 
                         passive_hearing_range: float = 5.0, chasing_hearing_range : float = 7.5,
                         passive_fov_degrees : float = 60, chasing_fov_degrees : float = 75, 
@@ -242,6 +245,8 @@ class PathFollowingBot(Bot):
         self.orientation_progress = 0.0
         self.current_quat = start_quat
         self.target_quat = start_quat
+        self.catch_distance = catch_distance
+        self.started = False
 
         follow_path_state = FollowPathState()
         follow_path_state.setLocalState({"path": path, 
@@ -275,7 +280,18 @@ class PathFollowingBot(Bot):
         self.look_around_base_angle = 0.0
 
         self.state_machine = state_machine
+        
+        type(self).BotList.append(self)
+
+    def start(self):
         self.frameCallback = EventHandler([self.state_machine]).callback(self.frameCallback)
+        self.started = True
+    
+    def stop(self):
+        del self.frameCallback
+        self.frameCallback = None
+        self.started = False
+        
 
     def move_towards(self, target: Tuple[float, float, float]):
         current_position = self.avatar.getPosition()
@@ -352,13 +368,39 @@ class PathFollowingBot(Bot):
         new_angle = self.look_around_base_angle + amplitude * math.sin(speed * self.look_around_timer)
         self.avatar.setEuler([new_angle, current_euler[1], current_euler[2]])
         return True
+        
+    def caught_player(self, player_position : Tuple[float, float, float]) -> bool:
+        return self.distance_to(player_position) < self.catch_distance
 
     def frameCallback(self, event: FrameUpdateEvent):
-        self.orientation_progress += viz.getFrameElapsed() / self.turn_duration
-        self.orientation_progress = min(self.orientation_progress, 1.0)
-        new_quat = vizmat.slerp(self.current_quat, self.target_quat, self.orientation_progress)
-        self.avatar.setQuat(new_quat)
+        if self.started: # even though the state machine isn't updated when we're not start, we should do this to prevent the robot from turning
+                         # this function is called even if the state machine isn't updated every frame yet.
+            self.orientation_progress += viz.getFrameElapsed() / self.turn_duration
+            self.orientation_progress = min(self.orientation_progress, 1.0)
+            new_quat = vizmat.slerp(self.current_quat, self.target_quat, self.orientation_progress)
+            self.avatar.setQuat(new_quat)
 
-        player_position = event.PlayerPosition
-        return event
+            player_position = event.PlayerPosition
+            return event
 
+    @classmethod
+    def any_robots_caught_player(cls, player_position : Tuple[float, float, float]) -> bool:
+        return len([b for b in cls.BotList if b.caught_player(player_position)]) > 0
+        
+    @classmethod
+    def start_robots(cls):
+        for bot in cls.BotList:
+            bot.start()
+            
+    @classmethod
+    def stop_robots(cls):
+        for bot in cls.BotList:
+            bot.stop()
+            
+    @classmethod
+    def getCallback(cls):
+        def callback(event : FrameUpdateEvent):
+            for bot in cls.Bots:
+                if bot.frameCallback is not None:
+                    bot.frameCallback(event)
+        return callback

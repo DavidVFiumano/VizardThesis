@@ -10,8 +10,7 @@ import viz
 from AlexaEngine import StateMachine, State, EventHandler
 
 from .AnimatedSprite import AnimatedSprite
-from Events import FrameUpdateEvent, NetworkEvent
-from Globals import globalGameState
+from Events import FrameUpdateEvent
 from LoggerFactory import CSVFormatter, LoggerFactory, LoggerNotInitializedError
 import Configuration
 
@@ -37,6 +36,10 @@ class Collectible(AnimatedSprite):
 	CollectibleProgressBar : viz.VizProgressBar = None
 	CollectibleProgressBarColor : Tuple[int, int, int, int] = (0, 0.5, 0, 1)
 	Collectibles : List["Collectible"] = list()
+	
+	@classmethod
+	def collectedAllCoins(cls):
+		return cls.CollectedValue == cls.TotalValue
 	
 	@classmethod
 	def initProgressBar(cls):

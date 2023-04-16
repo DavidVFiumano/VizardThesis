@@ -2,15 +2,11 @@
 import vizact
 
 from Callbacks import frameDrawCallback, sprintKeyDownHandler, sprintKeyUpHandler
-from PlayerMovement import setWalkingSpeed
+from PlayerMovement import setWalkingSpeed, disableMovement
 from Objects import Collectible
 from Bots import PathFollowingBot
 
 import steve
-
-def printLocation():
-	print(f"At {viz.MainView.getPosition()} facing {viz.MainView.getQuat()}")
-	#print(followerBot.getPosition())
 
 def load():
 	viz.addChild('maze.osgb')
@@ -18,16 +14,12 @@ def load():
 	viz.clearcolor(viz.SKYBLUE)
 	
 	#viz.mouse.setOverride(viz.ON)
-	
-	viz.go()
+	viz.setOption('viz.fullscreen.monitor', 2)
+	viz.go(viz.FULLSCREEN)
 	vizact.ontimer(0, frameDrawCallback)
 	
 	vizact.onkeydown(viz.KEY_SHIFT_L, sprintKeyDownHandler, viz.KEY_SHIFT_L)
 	vizact.onkeyup(viz.KEY_SHIFT_L, sprintKeyUpHandler, viz.KEY_SHIFT_L)
-	
-	vizact.onkeydown('f', printLocation)
-	
-	setWalkingSpeed()
 	
 	# vizard code below this line
 	viz.setMultiSample(4)
