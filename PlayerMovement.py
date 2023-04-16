@@ -10,15 +10,10 @@ from Events import FrameUpdateEvent
 walkingSpeed = 6 # unit/sec
 sprintingSpeed = 12 # unit/sec
 currentSpeed = 0
+sprinting = False
 
 lookSpeed = 90 # deg/sec
 currentLookSpeed = 0
-
-funcsSet = False
-forwardFunc = None
-leftFunc = None
-backwardFunc = None
-rightFunc = None	
 
 def updateFOV(angleChange):
 	elapsed_time = viz.getFrameElapsed()
@@ -41,14 +36,6 @@ def updateFOV(angleChange):
 				w * wr - x * xr - y * yr - z * zr]
 	
 	viz.MainView.setQuat(new_quat)
-	
-def resetSpeed():
-	global funcsSet, forwardFunc, leftFunc, backwardFunc, rightFunc
-	if funcsSet:
-		forwardFunc.remove()
-		leftFunc.remove()
-		backwardFunc.remove()
-		rightFunc.remove()
 		
 def moveMainViewFromKeys(event : FrameUpdateEvent):
 	global currentSpeed
@@ -84,14 +71,20 @@ def moveMainViewFromKeys(event : FrameUpdateEvent):
 		
 
 def setWalkingSpeed():
-	global currentSpeed, walkingSpeed, currentLookSpeed, lookSpeed
+	global currentSpeed, walkingSpeed, currentLookSpeed, lookSpeed, sprinting
+	sprinting = False
 	currentSpeed = walkingSpeed
 	currentLookSpeed = lookSpeed
 	
 def setSprintingSpeed():
-	global currentSpeed, sprintingSpeed, currentLookSpeed, lookSpeed
+	global currentSpeed, sprintingSpeed, currentLookSpeed, lookSpeed, sprinting
+	sprinting = True
 	currentSpeed = sprintingSpeed
 	currentLookSpeed = lookSpeed
+
+def isSprinting() -> bool:
+	global sprinting
+	return sprinting
 
 def disableMovement():
 	global currentSpeed
