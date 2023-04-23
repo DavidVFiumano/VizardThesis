@@ -54,10 +54,10 @@ After you have installed Vizard 7, follow these steps to run the Coin Collection
 
 4. **Run the game:** Press the `F5` key or click on the `Run` button in the Vizard IDE to start the game. The game window should open.
 
-5. **Select a save directory:** The game will prompt you to select a save directory. You can create a new directory or choose any empty directory on your system. This is where the game will save your progress and other game-related data.
+5. **Select a save directory:** The game will prompt you to select a save directory. You can create a new directory or choose any empty directory on your system. This is where the game will save data for analysis later. Pressing cancel at this stage will close the game window.
 
 6. **Start the game:** Press `F` to begin playing the Coin Collection Game. Collect coins and enjoy!
 
-7. **Ending the game:** The game ends if the player runs out of time, the player collects all the coins, or the player is caught by a robot.
+7. **Ending the game:** The game ends if the player runs out of time, the player collects all the coins, or the player is caught by a robot. When the game ends, press 'Esc' to close the window.
 
 The game will automatically save data into the selected directory for later analysis.
