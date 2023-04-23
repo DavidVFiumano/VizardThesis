@@ -1,4 +1,5 @@
 ﻿from typing import Tuple, List
+from math import pi
 
 import viz
 import vizmat
@@ -44,12 +45,13 @@ class Bot:
 		self.avatar = avatar
 		self.avatar.setPosition(*position)
 		self.avatar.setQuat(*facing)
+		self.turn_duration = 0
 		type(self).Bots.append(self)
 		
 	def frameCallback(self, event : FrameUpdateEvent):
-		if self.started: # even though the state machine isn't updated when we're not start, we should do this to prevent the robot from turning
+		if self.started and self.turn_duration > 0.0: # even though the state machine isn't updated when we're not start, we should do this to prevent the robot from turning
 						 # this function is called even if the state machine isn't updated every frame yet.
-			self.orientation_progress += viz.getFrameElapsed() / self.turn_duration
+			self.orientation_progress += viz.getFrameElapsed() * (2 * pi) / self.turn_duration
 			self.orientation_progress = min(self.orientation_progress, 1.0)
 			new_quat = vizmat.slerp(self.current_quat, self.target_quat, self.orientation_progress)
 			self.avatar.setQuat(new_quat)
@@ -74,24 +76,46 @@ class Bot:
 		self.started = False
 		
 
-	def move_towards(self, target: Tuple[float, float, float]):
+	'''def move_towards(self, target: Tuple[float, float, float], speed : float):
 		current_position = self.avatar.getPosition()
 		direction = viz.Vector(target) - current_position
 		distance = direction.length()
 
-		if distance < self.speed * viz.getFrameElapsed():
+		if distance < speed * viz.getFrameElapsed():
 			self.avatar.setPosition(target)
 			return True
 
 		direction.normalize()
-		direction *= self.speed * viz.getFrameElapsed()
+		direction *= speed * viz.getFrameElapsed()
 		new_position = current_position + direction
+		self.avatar.setPosition(new_position)
+		return False'''
+	def move_towards(self, target: Tuple[float, float, float], speed : float):
+		current_position = self.avatar.getPosition()
+		direction = viz.Vector(target) - current_position
+		distance = direction.length()
+
+		# Calculate the movement vector for this frame
+		direction.normalize()
+		direction *= speed * viz.getFrameElapsed()
+		new_position = current_position + direction
+
+		# Calculate the distance the avatar will move in this frame
+		frame_movement_distance = direction.length()
+		print(frame_movement_distance)
+		print(frame_movement_distance / viz.getFrameElapsed())
+		# Check if the avatar has reached the target in this frame
+		if distance < frame_movement_distance:
+			self.avatar.setPosition(target)
+			return True
+
 		self.avatar.setPosition(new_position)
 		return False
 
-	def is_at_position(self, target: Tuple[float, float, float]) -> bool:
+
+	def is_at_position(self, target: Tuple[float, float, float], speed : float) -> bool:
 		current_position = self.avatar.getPosition()
-		return vizmat.Distance(current_position, target) < self.speed * viz.getFrameElapsed()
+		return vizmat.Distance(current_position, target) < speed * viz.getFrameElapsed()
 	
 	def get_position(self) -> Tuple[float, float, float]:
 		return self.avatar.getPosition()
@@ -100,7 +124,8 @@ class Bot:
 		current_position = self.avatar.getPosition()
 		return vizmat.Distance(current_position, target)
 		
-	def look_at(self, target: Tuple[float, float, float]):
+	def look_at(self, target: Tuple[float, float, float], turnDurationSec : float):
+		self.turn_duration = turnDurationSec
 		current_position = self.avatar.getPosition()
 		direction = viz.Vector(target) - current_position
 		self.target_quat = vizmat.LookToQuat(direction)

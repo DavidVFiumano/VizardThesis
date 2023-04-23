@@ -62,10 +62,10 @@ class FollowPathState(State):
 
         if path_index < len(path):
             target_pos = path[path_index]
-            bot.move_towards(target_pos)
-            bot.look_at(target_pos)
+            bot.move_towards(target_pos, globalValues["patrol_speed"])
+            bot.look_at(target_pos, globalValues["patrol_360_turn_duration"])
 
-            if bot.is_at_position(target_pos):
+            if bot.is_at_position(target_pos, globalValues["patrol_speed"]):
                 self.localState["path_index"] += 1
         else:
             self.localState["path_index"] = 0
@@ -107,8 +107,8 @@ class ChasePlayerState(State):
         self.playerPosition = player_position
         self.frame_number = event.FrameNumber
         globalValues["last_known_player_position"] = self.playerPosition
-        bot.move_towards(player_position)
-        bot.look_at(self.playerPosition)
+        bot.move_towards(player_position, globalValues["chase_speed"])
+        bot.look_at(self.playerPosition, globalValues["chase_360_turn_duration"])
 
     def getNextState(self, availableStates: List[str], otherStates: Dict[str, State.LOCAL_STATE_TYPE], globalValues: Dict[str, Any]) -> Union[str, None]:
         player_position = self.playerPosition
@@ -145,10 +145,10 @@ class LookForPlayerState(State):
         bot = globalValues["bot"]
         self.frame_number = event.FrameNumber
         last_known_pos = globalValues["last_known_player_position"]
-        if bot.is_at_position(last_known_pos):
+        if bot.is_at_position(last_known_pos, globalValues["chase_speed"]):
             self.localState["bot_still_looking"] = bot.look_around(5, 135, 5)
         else:
-            bot.move_towards(last_known_pos)
+            bot.move_towards(last_known_pos, globalValues["chase_speed"])
             self.localState["bot_still_looking"]
 
     def getNextState(self, availableStates: List[str], otherStates: Dict[str, State.LOCAL_STATE_TYPE], globalValues: Dict[str, Any]) -> Union[str, None]:
@@ -194,7 +194,8 @@ class PathFollowingBot(Bot):
     
     def __init__(self, name : str, avatar: viz.VizNode, path: List[Tuple[float, float, float]], 
                         catch_distance : float = 1.25,
-                        speed: float = 1.25, turn_duration: float = 0.25, 
+                        patrol_speed: float = 1.25, patrol_360_turn_duration: float = 1.0,
+                        chase_speed: float = 1.25, chase_360_turn_duration: float = 0.75, 
                         passive_hearing_range: float = 5.0, chasing_hearing_range : float = 7.5,
                         passive_fov_degrees : float = 60, chasing_fov_degrees : float = 75, 
                         passive_vision_distance : float = 7.5, chasing_vision_distance : float = 12.5,
@@ -209,8 +210,10 @@ class PathFollowingBot(Bot):
         
         self.name = name
         self.path = path
-        self.speed = speed
-        self.turn_duration = turn_duration
+        self.patrol_speed = patrol_speed
+        self.patrol_360_turn_duration = patrol_360_turn_duration
+        self.chase_speed = chase_speed
+        self.chase_360_turn_duration = chase_360_turn_duration
         self.current_target = 1
         self.orientation_progress = 0.0
         self.current_quat = start_quat
@@ -245,6 +248,10 @@ class PathFollowingBot(Bot):
         state_machine.setGlobalValue('bot', self)
         state_machine.setGlobalValue('path', path)
         state_machine.setGlobalValue('last_known_player_position', None)
+        state_machine.setGlobalValue('patrol_speed', self.patrol_speed)
+        state_machine.setGlobalValue('chase_speed', self.chase_speed)
+        state_machine.setGlobalValue('patrol_360_turn_duration', self.patrol_360_turn_duration)
+        state_machine.setGlobalValue('chase_360_turn_duration', self.chase_360_turn_duration)
         
         self.look_around_timer = 0.0
         self.look_around_base_angle = 0.0

@@ -35,45 +35,13 @@ def load():
 	c2.getModel().color([0, 0, 1])
 	c3 = Collectible('Assets/Coin/scene.gltf', position=[-9, 1, -10], scale=5.0, spinDegPerSecond=90, value=10)
 	
-	path = [
-		{
-			"Position" : [-3.570643663406372, 1.8200000524520874, -6.548458576202393] ,
-			"Speed" : 1,
-			"DegreesPerSecond" : 90
-		},
-		{
-			"Position" : [-3.5064423084259033, 1.8200000524520874, -11.498076438903809],
-			"Speed" : 1,
-			"DegreesPerSecond" : 90
-		},
-		{
-			"Position" : [-10.481642723083496, 1.8200000524520874, -11.953154563903809],
-			"Speed" : 1,
-			"DegreesPerSecond" : 90
-		},
-		{
-			"Position" : [-11.995747566223145, 1.8200000524520874, -8.496102333068848],
-			"Speed" : 1,
-			"DegreesPerSecond" : 90
-		},
-		{
-			"Position" : [-11.910186767578125, 1.8200000524520874, -5.750005722045898],
-			"Speed" : 1,
-			"DegreesPerSecond" : 90
-		},
-		{
-			"Position" : [-5.884194374084473, 1.8200000524520874, -3.4759459495544434],
-			"Speed" : 1,
-			"DegreesPerSecond" : 90
-		},
-		{
-			"Position" : [-4.840819835662842, 1.8200000524520874, -4.874146938323975],
-			"Speed" : 1,
-			"DegreesPerSecond" : 90
-		},
-	]
-	
-	path = [tuple(p["Position"]) for p in path]
+	path = [(-3.570643663406372, 1.8200000524520874, -6.548458576202393), 
+			(-3.5064423084259033, 1.8200000524520874, -11.498076438903809), 
+			(-10.481642723083496, 1.8200000524520874, -11.953154563903809), 
+			(-11.995747566223145, 1.8200000524520874, -8.496102333068848), 
+			(-11.910186767578125, 1.8200000524520874, -5.750005722045898), 
+			(-5.884194374084473, 1.8200000524520874, -3.4759459495544434), 
+			(-4.840819835662842, 1.8200000524520874, -4.874146938323975)]
 	
 	def angryMode(st : PathFollowingBot):
 		st.avatar.setEyeColor([1, 0, 0])
@@ -86,7 +54,9 @@ def load():
 		
 	
 	followerBot = steve.Steve()
-	bot = PathFollowingBot("TestFollower", followerBot, path, 
+	bot = PathFollowingBot("TestFollower", followerBot, path,
+							chase_speed=2, patrol_speed=1.25,
+							chase_360_turn_duration=0.5, patrol_360_turn_duration=1,
 							change_node_theme_to_chase_mode=angryMode, 
 							change_node_theme_to_walk_mode=patrolMode, 
 							change_node_theme_to_alert_mode=alertMode)

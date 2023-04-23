@@ -58,4 +58,6 @@ After you have installed Vizard 7, follow these steps to run the Coin Collection
 
 6. **Start the game:** Press `F` to begin playing the Coin Collection Game. Collect coins and enjoy!
 
+7. **Ending the game:** The game ends if the player runs out of time, the player collects all the coins, or the player is caught by a robot.
+
 The game will automatically save data into the selected directory for later analysis.

@@ -67,7 +67,7 @@ def moveMainViewFromKeys(event : FrameUpdateEvent):
 		
 		# TODO maybe normalize these to ensure it never exceeds currentSpeed when two buttons are pressed?
 		viz.MainView.move(xSpeed, 0, zSpeed)
-		#print(f"frameMovement: {abs(xSpeed) + abs(zSpeed)} or {math.sqrt(xSpeed**2 + zSpeed**2)/timeSinceLastFrame} unit/sec.")
+		print(f"frameMovement: {abs(xSpeed) + abs(zSpeed)} or {math.sqrt(xSpeed**2 + zSpeed**2)/timeSinceLastFrame} unit/sec.")
 		
 
 def setWalkingSpeed():
