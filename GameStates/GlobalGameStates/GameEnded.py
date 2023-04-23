@@ -32,7 +32,6 @@ class GameEnded(State):
         disableMovement()
         self.displayCenteredText() 
 
-
     def handle(self, event: FrameUpdateEvent, otherStates: Dict[str, State.LOCAL_STATE_TYPE], globalValues: Dict[str, Any]) -> None:
         pass
 

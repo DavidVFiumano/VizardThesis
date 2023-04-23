@@ -46,9 +46,10 @@ class Bot:
 		self.avatar.setPosition(*position)
 		self.avatar.setQuat(*facing)
 		self.turn_duration = 0
+		self.frameCallback = None
 		type(self).BotList.append(self)
 		
-	def frameCallback(self, event : FrameUpdateEvent):
+	def frameCallbackFunc(self, event : FrameUpdateEvent):
 		if self.started and self.turn_duration > 0.0: # even though the state machine isn't updated when we're not start, we should do this to prevent the robot from turning
 						 # this function is called even if the state machine isn't updated every frame yet.
 			self.orientation_progress += viz.getFrameElapsed() * (2 * pi) / self.turn_duration
@@ -62,12 +63,13 @@ class Bot:
 	@classmethod
 	def getCallback(cls):
 		def callback(event : FrameUpdateEvent):
-			for bot in cls.Bots:
-				bot.frameCallback(event)
+			for bot in cls.BotList:
+				if bot.frameCallback is not None:
+					bot.frameCallback(event)
 		return callback
 	
 	def start(self):
-		self.frameCallback = EventHandler([self.state_machine]).callback(self.frameCallback)
+		self.frameCallback = EventHandler([self.state_machine]).callback(self.frameCallbackFunc)
 		self.started = True
 	
 	def stop(self):

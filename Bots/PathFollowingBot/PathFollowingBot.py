@@ -276,11 +276,3 @@ class PathFollowingBot(Bot):
     @classmethod
     def any_robots_caught_player(cls, player_position : Tuple[float, float, float]) -> bool:
         return len([b for b in cls.BotList if isinstance(b, PathFollowingBot) and b.caught_player(player_position)]) > 0
-            
-    @classmethod
-    def getCallback(cls):
-        def callback(event : FrameUpdateEvent):
-            for bot in cls.BotList:
-                if bot.frameCallback is not None:
-                    bot.frameCallback(event)
-        return callback

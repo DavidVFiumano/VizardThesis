@@ -45,7 +45,7 @@ def moveMainViewFromKeys(event : FrameUpdateEvent):
 		print(viz.MainView.getQuat())
 	if viz.key.isDown("p", False):
 		Bot.stop_robots()
-	if viz.key.isDown("e", False):
+	if viz.key.isDown("r", False):
 		Bot.start_robots()
 	global currentSpeed
 	timeSinceLastFrame = viz.getFrameElapsed()

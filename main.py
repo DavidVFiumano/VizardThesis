@@ -52,6 +52,9 @@ def load():
 	def alertMode(st : PathFollowingBot):
 		st.avatar.setEyeColor([1, 1, 0])
 		
+	def patrolModeWhite(st : PathFollowingBot):
+		st.avatar.setEyeColor([1, 1, 1])
+		
 	
 	CoinGuardPath = [(-3.570643663406372, 1.8200000524520874, -6.548458576202393), 
 						(-3.5064423084259033, 1.8200000524520874, -11.498076438903809), 
@@ -71,7 +74,8 @@ def load():
 							
 	walkerBackAndForthPath = [(9.828619003295898, 1.8200000524520874, -4.095284461975098),
 							  (-5.570601463317871, 1.8200000524520874, -3.932171106338501),
-							  (-4.003185749053955, 1.8200000524520874, 10.214484214782715)]
+							  (-4.003185749053955, 1.8200000524520874, 10.214484214782715),
+							  (-5.570601463317871, 1.8200000524520874, -3.932171106338501)]
 						
 	walkerBackAndForth = steve.Steve()
 	walkerBackAndForth.setBodyColor([0, 0, 1.0])
@@ -85,15 +89,18 @@ def load():
 	dumberGuardBotPath = [(5.5286736488342285, 1.8200000524520874, 1.1839501857757568),
 						   (11.186570167541504, 1.8200000524520874, 7.215301990509033),
 						   (12.096813201904297, 1.8200000524520874, 8.530780792236328),
-						   (4.569991111755371, 1.8200000524520874, 10.155921936035156)]
+						   (4.569991111755371, 1.8200000524520874, 10.155921936035156),
+						   (12.096813201904297, 1.8200000524520874, 8.530780792236328),
+						   (11.186570167541504, 1.8200000524520874, 7.215301990509033)]
 						
 	dumberGuardBot = steve.Steve()
-	dumberGuardBot.setBodyColor([1.0, 0, 1.0])
+	dumberGuardBot.setBodyColor([0.0, 0, 0.0])
+	dumberGuardBot.setEyeColor([1.0, 1.0, 1.0])
 	dumberGuardBot = PathFollowingBot("DumberGuardBot", dumberGuardBot, dumberGuardBotPath,
 							chase_speed=2, patrol_speed=1.25,
 							chase_360_turn_duration=0.5, patrol_360_turn_duration=1,
 							change_node_theme_to_chase_mode=angryMode, 
-							change_node_theme_to_walk_mode=patrolMode, 
+							change_node_theme_to_walk_mode=patrolModeWhite, 
 							change_node_theme_to_alert_mode=alertMode)
 	
 	viz.MainView.setPosition([12.347145080566406, 1.8200000524520874, -7.345220565795898])
