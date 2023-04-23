@@ -7,7 +7,7 @@ from numba import njit
 
 import viz
 
-from AlexaEngine import StateMachine, State, EventHandler
+from StateManagement import StateMachine, State, EventHandler
 
 from .AnimatedSprite import AnimatedSprite
 from Events import FrameUpdateEvent

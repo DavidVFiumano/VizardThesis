@@ -2,7 +2,7 @@
 
 import viz
 
-from AlexaEngine import EventHandler
+from StateManagement import EventHandler
 
 from Events import FrameUpdateEvent, KeyPressEvent, KeyReleaseEvent, logFrameEvent
 from Globals import globalGameState

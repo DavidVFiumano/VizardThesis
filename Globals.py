@@ -1,6 +1,6 @@
 ﻿import viz
 
-from AlexaEngine import StateMachine
+from StateManagement import StateMachine
 
 from States import gameNotStarted, experimentSetup, playingGame, gameEndedByRobot, gameEndedByTimer, gameEndedInVictory
 

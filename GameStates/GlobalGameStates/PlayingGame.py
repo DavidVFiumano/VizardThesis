@@ -3,7 +3,7 @@ import time
 
 import viz
 
-from AlexaEngine import State, StateMachine, EventHandler
+from StateManagement import State, StateMachine, EventHandler
 
 from Events import FrameUpdateEvent
 from GameStates.PlayerStates import Sprinting, Walking

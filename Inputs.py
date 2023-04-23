@@ -1,6 +1,6 @@
 ﻿import viz
 
-from AlexaEngine import StateMachine
+from StateManagement import StateMachine
 
 from GameStates.InputStates import KeyPressed, KeyReleased
 
