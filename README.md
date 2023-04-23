@@ -38,3 +38,24 @@ This guide will help you install Vizard 7 on your system. You can download the i
 
 You have now successfully installed Vizard 7 on your system.
 
+## Running the Coin Collection Game
+
+After you have installed Vizard 7, follow these steps to run the Coin Collection Game:
+
+1. **Download or clone the repository:** Download the game repository as a ZIP file from the GitHub page or use `git clone` to clone the repository onto your local system. If you downloaded a ZIP file, extract the contents to a folder on your computer.
+
+   ```
+   git clone https://github.com/yourusername/coin-collection-game.git
+   ```
+
+2. **Open the Vizard IDE:** Launch the Vizard IDE by double-clicking the Vizard 7 desktop shortcut or finding it in your Start menu.
+
+3. **Open the game project:** In the Vizard IDE, click on `File` > `Open` from the top menu. Navigate to the folder where you downloaded or cloned the game repository, and open the `main.py` file.
+
+4. **Run the game:** Press the `F5` key or click on the `Run` button in the Vizard IDE to start the game. The game window should open.
+
+5. **Select a save directory:** The game will prompt you to select a save directory. You can create a new directory or choose any empty directory on your system. This is where the game will save your progress and other game-related data.
+
+6. **Start the game:** Press `F` to begin playing the Coin Collection Game. Collect coins and enjoy!
+
+The game will automatically save data into the selected directory for later analysis.
