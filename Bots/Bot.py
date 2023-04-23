@@ -39,14 +39,14 @@ def quat_to_mat(quat: Tuple[float, float, float, float]) -> viz.Matrix:
 
 class Bot:
 
-	Bots : List["Bot"] = list()
+	BotList : List["Bot"] = list()
 	
 	def __init__(self, avatar : viz.VizNode, position : Tuple[float, float, float], facing : Tuple[float, float, float, float]):
 		self.avatar = avatar
 		self.avatar.setPosition(*position)
 		self.avatar.setQuat(*facing)
 		self.turn_duration = 0
-		type(self).Bots.append(self)
+		type(self).BotList.append(self)
 		
 	def frameCallback(self, event : FrameUpdateEvent):
 		if self.started and self.turn_duration > 0.0: # even though the state machine isn't updated when we're not start, we should do this to prevent the robot from turning
@@ -75,21 +75,9 @@ class Bot:
 		self.frameCallback = None
 		self.started = False
 		
-
-	'''def move_towards(self, target: Tuple[float, float, float], speed : float):
-		current_position = self.avatar.getPosition()
-		direction = viz.Vector(target) - current_position
-		distance = direction.length()
-
-		if distance < speed * viz.getFrameElapsed():
-			self.avatar.setPosition(target)
-			return True
-
-		direction.normalize()
-		direction *= speed * viz.getFrameElapsed()
-		new_position = current_position + direction
-		self.avatar.setPosition(new_position)
-		return False'''
+	def isStarted(self) -> bool:
+		return self.started
+		
 	def move_towards(self, target: Tuple[float, float, float], speed : float):
 		current_position = self.avatar.getPosition()
 		direction = viz.Vector(target) - current_position
@@ -102,8 +90,7 @@ class Bot:
 
 		# Calculate the distance the avatar will move in this frame
 		frame_movement_distance = direction.length()
-		print(frame_movement_distance)
-		print(frame_movement_distance / viz.getFrameElapsed())
+		
 		# Check if the avatar has reached the target in this frame
 		if distance < frame_movement_distance:
 			self.avatar.setPosition(target)
@@ -161,3 +148,13 @@ class Bot:
 			return True
 
 		return False
+		
+	@classmethod
+	def start_robots(cls):
+		for bot in cls.BotList:
+			bot.start()
+			
+	@classmethod
+	def stop_robots(cls):
+		for bot in cls.BotList:
+			bot.stop()

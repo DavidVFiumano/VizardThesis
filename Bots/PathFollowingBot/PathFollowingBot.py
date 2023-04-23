@@ -190,7 +190,6 @@ class LookForPlayerState(State):
 
 
 class PathFollowingBot(Bot):
-    BotList : List["PathFollowingBot"] = list()
     
     def __init__(self, name : str, avatar: viz.VizNode, path: List[Tuple[float, float, float]], 
                         catch_distance : float = 1.25,
@@ -257,8 +256,6 @@ class PathFollowingBot(Bot):
         self.look_around_base_angle = 0.0
 
         self.state_machine = state_machine
-        
-        type(self).BotList.append(self)
     
     def reset_look_around_time(self):
         self.look_around_timer = 0
@@ -274,26 +271,16 @@ class PathFollowingBot(Bot):
         return True
         
     def caught_player(self, player_position : Tuple[float, float, float]) -> bool:
-        return self.distance_to(player_position) < self.catch_distance
+        return self.distance_to(player_position) < self.catch_distance and self.isStarted()
 
     @classmethod
     def any_robots_caught_player(cls, player_position : Tuple[float, float, float]) -> bool:
-        return len([b for b in cls.BotList if b.caught_player(player_position)]) > 0
-        
-    @classmethod
-    def start_robots(cls):
-        for bot in cls.BotList:
-            bot.start()
-            
-    @classmethod
-    def stop_robots(cls):
-        for bot in cls.BotList:
-            bot.stop()
+        return len([b for b in cls.BotList if isinstance(b, PathFollowingBot) and b.caught_player(player_position)]) > 0
             
     @classmethod
     def getCallback(cls):
         def callback(event : FrameUpdateEvent):
-            for bot in cls.Bots:
+            for bot in cls.BotList:
                 if bot.frameCallback is not None:
                     bot.frameCallback(event)
         return callback

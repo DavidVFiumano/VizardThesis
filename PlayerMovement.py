@@ -6,6 +6,7 @@ import vizact
 import vizmat
 
 from Events import FrameUpdateEvent
+from Bots import Bot
 
 walkingSpeed = 6 # unit/sec
 sprintingSpeed = 12 # unit/sec
@@ -38,6 +39,14 @@ def updateFOV(angleChange):
 	viz.MainView.setQuat(new_quat)
 		
 def moveMainViewFromKeys(event : FrameUpdateEvent):
+	if viz.key.isDown("t", False):
+		print(viz.MainView.getPosition())
+	if viz.key.isDown("q", False):
+		print(viz.MainView.getQuat())
+	if viz.key.isDown("p", False):
+		Bot.stop_robots()
+	if viz.key.isDown("e", False):
+		Bot.start_robots()
 	global currentSpeed
 	timeSinceLastFrame = viz.getFrameElapsed()
 	forwardSpeed = int(viz.key.isDown('w', False))*currentSpeed*timeSinceLastFrame
@@ -67,7 +76,6 @@ def moveMainViewFromKeys(event : FrameUpdateEvent):
 		
 		# TODO maybe normalize these to ensure it never exceeds currentSpeed when two buttons are pressed?
 		viz.MainView.move(xSpeed, 0, zSpeed)
-		print(f"frameMovement: {abs(xSpeed) + abs(zSpeed)} or {math.sqrt(xSpeed**2 + zSpeed**2)/timeSinceLastFrame} unit/sec.")
 		
 
 def setWalkingSpeed():
