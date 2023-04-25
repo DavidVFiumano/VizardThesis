@@ -45,7 +45,7 @@ After you have installed Vizard 7, follow these steps to run the Coin Collection
 1. **Download or clone the repository:** Download the game repository as a ZIP file from the GitHub page or use `git clone` to clone the repository onto your local system. If you downloaded a ZIP file, extract the contents to a folder on your computer.
 
    ```
-   git clone https://github.com/yourusername/coin-collection-game.git
+   git clone https://github.com/DavidVFiumano/VizardThesis.git
    ```
 
 2. **Open the Vizard IDE:** Launch the Vizard IDE by double-clicking the Vizard 7 desktop shortcut or finding it in your Start menu.

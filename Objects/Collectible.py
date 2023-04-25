@@ -3,8 +3,6 @@ from threading import RLock
 from math import sqrt
 from logging import Logger
 
-from numba import njit
-
 import viz
 
 from StateManagement import StateMachine, State, EventHandler
