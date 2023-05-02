@@ -8,9 +8,11 @@ This guide will help you install Vizard 7 on your system. You can download the i
 
 ### Prerequisites
 
-- Windows 7, 8, or 10 (64-bit)
+- Windows 7, 8, 10 or 11 (64-bit)
 - Graphics card with DirectX 11 support
 - Microsoft Visual C++ 2015 Redistributable (x64) - [Download Link](https://www.microsoft.com/en-us/download/details.aspx?id=48145)
+- Git Bash - [Download Link](https://git-scm.com/downloads)
+- Git Large File Storage - [Download Link](https://git-lfs.com/)
 
 ### Installation Steps
 
@@ -42,23 +44,35 @@ You have now successfully installed Vizard 7 on your system.
 
 After you have installed Vizard 7, follow these steps to run the Coin Collection Game:
 
-1. **Download or clone the repository:** Download the game repository as a ZIP file from the GitHub page or use `git clone` to clone the repository onto your local system. If you downloaded a ZIP file, extract the contents to a folder on your computer.
+1. **Download or clone the repository:** Open git bash where you want to download the game and use `git clone` to clone the repository onto your local system.
 
    ```
    git clone https://github.com/DavidVFiumano/VizardThesis.git
    ```
 
-2. **Open the Vizard IDE:** Launch the Vizard IDE by double-clicking the Vizard 7 desktop shortcut or finding it in your Start menu.
+2. **Download the Assets Folder:** We use git lfs to store the asset files. To download them, make sure git lfs is accessible from git bash. If you haven't done this before, you can run the following command from the git bash window you opened earlier.
 
-3. **Open the game project:** In the Vizard IDE, click on `File` > `Open` from the top menu. Navigate to the folder where you downloaded or cloned the game repository, and open the `main.py` file.
+   ```
+   git lfs install
+   ```
 
-4. **Run the game:** Press the `F5` key or click on the `Run` button in the Vizard IDE to start the game. The game window should open.
+After ensuring git lfs is installed, you can fetch the assets by running git lfs fetch.
 
-5. **Select a save directory:** The game will prompt you to select a save directory. You can create a new directory or choose any empty directory on your system. This is where the game will save data for analysis later. Pressing cancel at this stage will close the game window.
+  ```
+  git lfs fetch --all
+  ```
 
-6. **Start the game:** Press `F` to begin playing the Coin Collection Game. Collect coins and enjoy!
+3. **Open the Vizard IDE:** Launch the Vizard IDE by double-clicking the Vizard 7 desktop shortcut or finding it in your Start menu.
 
-7. **Ending the game:** The game ends if the player runs out of time, the player collects all the coins, or the player is caught by a robot. When the game ends, press 'Esc' to close the window.
+4. **Open the game project:** In the Vizard IDE, click on `File` > `Open` from the top menu. Navigate to the folder where you downloaded or cloned the game repository, and open the `main.py` file.
+
+5. **Run the game:** Press the `F5` key or click on the `Run` button in the Vizard IDE to start the game. The game window should open.
+
+6. **Select a save directory:** The game will prompt you to select a save directory. You can create a new directory or choose any empty directory on your system. This is where the game will save data for analysis later. Pressing cancel at this stage will close the game window.
+
+7. **Start the game:** Press `F` to begin playing the Coin Collection Game. Collect coins and enjoy!
+
+8. **Ending the game:** The game ends if the player runs out of time, the player collects all the coins, or the player is caught by a robot. When the game ends, press 'Esc' to close the window.
 
 The game will automatically save data into the selected directory for later analysis.
 

@@ -14,7 +14,7 @@ def load():
 	viz.clearcolor(viz.SKYBLUE)
 	
 	#viz.mouse.setOverride(viz.ON)
-	viz.setOption('viz.fullscreen.monitor', 2)
+	viz.setOption('viz.fullscreen.monitor', 1)
 	viz.go(viz.FULLSCREEN)
 	vizact.ontimer(0, frameDrawCallback)
 	
@@ -64,13 +64,13 @@ def load():
 						(-5.884194374084473, 1.8200000524520874, -3.4759459495544434), 
 						(-4.840819835662842, 1.8200000524520874, -4.874146938323975)]
 						
-	coinGuardBot = steve.Steve()
+	'''coinGuardBot = steve.Steve()
 	coinGuardBot = PathFollowingBot("3CoinGuard", coinGuardBot, CoinGuardPath,
 							chase_speed=2, patrol_speed=1.25,
 							chase_360_turn_duration=0.5, patrol_360_turn_duration=1,
 							change_node_theme_to_chase_mode=angryMode, 
 							change_node_theme_to_walk_mode=patrolMode, 
-							change_node_theme_to_alert_mode=alertMode)
+							change_node_theme_to_alert_mode=alertMode)'''
 							
 	walkerBackAndForthPath = [(9.828619003295898, 1.8200000524520874, -4.095284461975098),
 							  (-5.570601463317871, 1.8200000524520874, -3.932171106338501),
@@ -86,7 +86,7 @@ def load():
 							change_node_theme_to_walk_mode=patrolMode, 
 							change_node_theme_to_alert_mode=alertMode)
 							
-	dumberGuardBotPath = [(5.5286736488342285, 1.8200000524520874, 1.1839501857757568),
+	'''dumberGuardBotPath = [(5.5286736488342285, 1.8200000524520874, 1.1839501857757568),
 						   (11.186570167541504, 1.8200000524520874, 7.215301990509033),
 						   (12.096813201904297, 1.8200000524520874, 8.530780792236328),
 						   (4.569991111755371, 1.8200000524520874, 10.155921936035156),
@@ -101,7 +101,7 @@ def load():
 							chase_360_turn_duration=0.5, patrol_360_turn_duration=1,
 							change_node_theme_to_chase_mode=angryMode, 
 							change_node_theme_to_walk_mode=patrolModeWhite, 
-							change_node_theme_to_alert_mode=alertMode)
+							change_node_theme_to_alert_mode=alertMode)'''
 	
 	viz.MainView.setPosition([12.347145080566406, 1.8200000524520874, -7.345220565795898])
 	viz.MainView.setQuat([-0.0, -0.726588249206543, 0.0, -0.6870731115341187])
