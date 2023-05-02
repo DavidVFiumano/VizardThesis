@@ -58,9 +58,9 @@ After you have installed Vizard 7, follow these steps to run the Coin Collection
 
    After ensuring git lfs is installed, you can fetch the assets by running git lfs fetch.
 
-  ```
-  git lfs fetch --all
-  ```
+   ```
+   git lfs fetch --all
+   ```
 
 3. **Open the Vizard IDE:** Launch the Vizard IDE by double-clicking the Vizard 7 desktop shortcut or finding it in your Start menu.
 
