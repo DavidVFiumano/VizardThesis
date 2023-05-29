@@ -14,10 +14,10 @@ from LoggerFactory import LoggerFactory, LoggerNotInitializedError, CSVFormatter
 from .. import Bot
 
 # GPT-4 wrote this code (mostly). Editted by David Fiumano
-loggerName = "PathFollowerLogger"
+loggerName = "PathFollowerStateLogger"
 csvFormatter = CSVFormatter(fieldnames=["FrameNumber", "BotName", "CurrentState", "NextState", "BotX", "BotY", "BotZ", "PlayerX", "PlayerY", "PlayerZ", "DistanceToPlayer", "CanSeePlayer", "CanHearPlayer", "IsObstructed"])
 
-def logTransition(stateTransitionLogger : Logger, frameNumber : int, botName : str, currentState : str, nextState : str, 
+def logBotActivity(stateTransitionLogger : Logger, frameNumber : int, botName : str, currentState : str, nextState : str, 
                             botPosition : Tuple[float, float, float], playerPosition : Tuple[float, float, float], 
                             canSeePlayer : bool, canHearPlayer : bool, isObstructed : bool):
     
@@ -88,11 +88,16 @@ class FollowPathState(State):
             return None
             
         if can_hear_player or (has_unobstructed_view and can_see_player):
-            logTransition(stateTransitionLogger, self.frame_number, bot.name,
+            logBotActivity(stateTransitionLogger, self.frame_number, bot.name,
                             "FollowPathState", "ChasePlayerState", 
                             bot.get_position(), player_position,
                             can_see_player, can_hear_player, not has_unobstructed_view)
             return "ChasePlayerState"
+        else:
+            logBotActivity(stateTransitionLogger, self.frame_number, bot.name,
+                            "FollowPathState", "", 
+                            bot.get_position(), player_position,
+                            can_see_player, can_hear_player, not has_unobstructed_view)
 
         return None
 
@@ -128,13 +133,17 @@ class ChasePlayerState(State):
             return None
             
         if not(can_hear_player or (has_unobstructed_view and can_see_player)):
-            logTransition(stateTransitionLogger, self.frame_number, bot.name, 
+            logBotActivity(stateTransitionLogger, self.frame_number, bot.name, 
                             "ChasePlayerState", "LookForPlayerState", 
                             bot.get_position(), player_position,
                             can_see_player, can_hear_player, not has_unobstructed_view)
             return "LookForPlayerState"
-
-        return None
+        else:
+            logBotActivity(stateTransitionLogger, self.frame_number, bot.name, 
+                            "ChasePlayerState", "", 
+                            bot.get_position(), player_position,
+                            can_see_player, can_hear_player, not has_unobstructed_view)
+            return None
         
 class LookForPlayerState(State):
 
@@ -169,19 +178,23 @@ class LookForPlayerState(State):
             return None
             
         if can_hear_player or (has_unobstructed_view and can_see_player):
-            logTransition(stateTransitionLogger, self.frame_number, bot.name,
+            logBotActivity(stateTransitionLogger, self.frame_number, bot.name,
                             "LookForPlayerState", "ChasePlayerState", 
                             bot.get_position(), player_position,
                             can_see_player, can_hear_player, not has_unobstructed_view)
             return "ChasePlayerState"
         elif not self.localState["bot_still_looking"]:
-            logTransition(stateTransitionLogger, self.frame_number, bot.name,
+            logBotActivity(stateTransitionLogger, self.frame_number, bot.name,
                             "LookForPlayerState", "FollowPathState", 
                             bot.get_position(), player_position,
                             can_see_player, can_hear_player, not has_unobstructed_view)
             return "FollowPathState"
-            
-        return None
+        else:
+            logBotActivity(stateTransitionLogger, self.frame_number, bot.name,
+                            "LookForPlayerState", "", 
+                            bot.get_position(), player_position,
+                            can_see_player, can_hear_player, not has_unobstructed_view)
+            return None
         
     # called after the getNextState if the state has changed.
     # if this state has been transitioned to before, the localState will be the same as the previous time transitionOut was called.
