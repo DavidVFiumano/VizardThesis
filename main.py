@@ -9,15 +9,18 @@ from Bots import PathFollowingBot
 
 def load():
 	#viz.addChild('maze.osgb')
-	model : viz.VizNode = viz.addChild(r"C:\Users\Mynam\VizardThesis\Assets\3d_pixel_dungeon_set\scene_bright.osgb")
-	model.setScale(x=0.1, y=0.1, z=0.1, mode=viz.RELATIVE)
+	#model : viz.VizNode = viz.addChild(r"C:\Users\Mynam\VizardThesis\Assets\3d_pixel_dungeon_set\scene_bright.osgb")
+	model : viz.VizNode = viz.addChild(r"Assets\maze\maze.osgb")
+	#model.setScale(2, 1, 2)
+	#model.setPosition(0, 0, 0)
+	#model.setScale(x=1.1, y=1.1, z=1.1, mode=viz.RELATIVE)
 	viz.MainView.stepSize(1)
 	#model = viz.addChild('Assets/Hexagon_Environment_Thesis.osgb')
 	viz.clearcolor(viz.SKYBLUE)
 	
 	#viz.mouse.setOverride(viz.ON)
-	viz.MainView.setPosition([6.884576320648193, 1.820000171661377, -43.427703857421875])
-	viz.MainView.setQuat([-0.0, 0.01421490591019392, 0.0, 0.9998989701271057])
+	#viz.MainView.setPosition([0,0,23])
+	#viz.MainView.setQuat([-0.01309, 0.00436, 0.00006, 0.99990])
 	viz.setOption('viz.fullscreen.monitor', 1)
 	viz.go(viz.FULLSCREEN)
 	vizact.ontimer(0, frameDrawCallback)
