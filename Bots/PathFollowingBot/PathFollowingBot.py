@@ -1,12 +1,13 @@
 ﻿from typing import List, Tuple, Union, Dict, Any, Callable
 from logging import LogRecord, Logger, INFO
 from os.path import abspath
+from datetime import datetime as dt, timedelta
 import math
 
 import viz
 import vizmat
 
-from StateManagement import State, StateMachine
+from StateManagement import State, StateMachine, EventHandler
 from Events import FrameUpdateEvent
 from LoggerFactory import LoggerFactory, LoggerNotInitializedError, CSVFormatter
 
@@ -187,7 +188,47 @@ class LookForPlayerState(State):
     def transitionOut(self, nextState : str, otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
         bot = globalValues["bot"]
         bot.reset_look_around_time()
-
+        
+class GhostlyState(State):
+    def transitionIn(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
+        self.transitionTime = None
+        globalValues["bot"].avatar.alpha(0.5)
+    
+    def getNextState(self, availableStates: List[str], otherStates: Dict[str, State.LOCAL_STATE_TYPE], globalValues: Dict[str, Any]) -> Union[str, None]:
+        bot = globalValues["bot"]
+        avatar = bot.avatar
+        current_target = bot.current_target
+        intersection_response = viz.intersect(avatar.getPosition(), current_target)
+        if not intersection_response.valid and self.transitionTime is None:
+            self.transitionTime = dt.now() + timedelta(seconds=1.5)
+            return None
+        elif not intersection_response.valid and dt.now() < self.transitionTime:
+            return None
+        elif not intersection_response.valid and dt.now() > self.transitionTime:
+            return "SolidState"
+        else:
+            self.transitionTime = None
+            return None
+    
+class SolidState(State):
+    
+    def transitionIn(self, previousState : Union[None, str], otherStates : Dict[str, State.LOCAL_STATE_TYPE], globalValues : Dict[str, Any]) -> None:
+        globalValues["bot"].avatar.alpha(1)
+        
+    def getNextState(self, availableStates: List[str], otherStates: Dict[str, State.LOCAL_STATE_TYPE], globalValues: Dict[str, Any]) -> Union[str, None]:
+        bot : Bot = globalValues["bot"]
+        velocityVector = bot.velocity_vector
+        velocity = math.sqrt(sum([d**2 for d in velocityVector]))
+        if all([v == 0 for v in velocityVector]): # only true if the robot isn't moving
+            return None
+        avatar = bot.avatar
+        current_target = bot.current_target
+        intersection_response = viz.intersect(avatar.getPosition(), current_target)
+        intersection_distance = math.sqrt(sum([(a - b) ** 2 for a, b in zip(avatar.getPosition(), intersection_response.point)]))
+        if intersection_distance / velocity <= 1.5:
+            return "GhostlyState"
+        else:
+            return None
 
 class PathFollowingBot(Bot):
     
@@ -240,22 +281,31 @@ class PathFollowingBot(Bot):
                                             "transition_in_theme" : change_node_theme_to_alert_mode})
         
 
-        state_machine = StateMachine([(follow_path_state, [chase_player_state]), 
+        movement_state_machine = StateMachine([(follow_path_state, [chase_player_state]), 
                                         (chase_player_state, [follow_path_state, look_for_player_state]),
                                         (look_for_player_state, [follow_path_state, chase_player_state])])
-        state_machine.setStartingState(follow_path_state.getName())
-        state_machine.setGlobalValue('bot', self)
-        state_machine.setGlobalValue('path', path)
-        state_machine.setGlobalValue('last_known_player_position', None)
-        state_machine.setGlobalValue('patrol_speed', self.patrol_speed)
-        state_machine.setGlobalValue('chase_speed', self.chase_speed)
-        state_machine.setGlobalValue('patrol_360_turn_duration', self.patrol_360_turn_duration)
-        state_machine.setGlobalValue('chase_360_turn_duration', self.chase_360_turn_duration)
+        movement_state_machine.setStartingState(follow_path_state.getName())
+        movement_state_machine.setGlobalValue('bot', self)
+        movement_state_machine.setGlobalValue('path', path)
+        movement_state_machine.setGlobalValue('last_known_player_position', None)
+        movement_state_machine.setGlobalValue('patrol_speed', self.patrol_speed)
+        movement_state_machine.setGlobalValue('chase_speed', self.chase_speed)
+        movement_state_machine.setGlobalValue('patrol_360_turn_duration', self.patrol_360_turn_duration)
+        movement_state_machine.setGlobalValue('chase_360_turn_duration', self.chase_360_turn_duration)
+
+        self.movement_state_machine = movement_state_machine
+        
+        solidState = SolidState()
+        ghostlyState = GhostlyState()
+        
+        phasing_state_machine = StateMachine([(solidState, [ghostlyState]), (ghostlyState, [solidState])])
+        phasing_state_machine.setGlobalValue('bot', self)
+        self.phasing_state_machine = phasing_state_machine
         
         self.look_around_timer = 0.0
         self.look_around_base_angle = 0.0
-
-        self.state_machine = state_machine
+        
+        
     
     def reset_look_around_time(self):
         self.look_around_timer = 0
@@ -276,3 +326,15 @@ class PathFollowingBot(Bot):
     @classmethod
     def any_robots_caught_player(cls, player_position : Tuple[float, float, float]) -> bool:
         return len([b for b in cls.BotList if isinstance(b, PathFollowingBot) and b.caught_player(player_position)]) > 0
+        
+    def start(self):
+        self.frameCallback = EventHandler([self.movement_state_machine, self.phasing_state_machine]).callback(self.frameCallbackFunc)
+        self.started = True
+    
+    def stop(self):
+        del self.frameCallback
+        self.frameCallback = None
+        self.started = False
+        
+    def isStarted(self) -> bool:
+        return self.started

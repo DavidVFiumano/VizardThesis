@@ -1,19 +1,23 @@
 ﻿import viz
 import vizact
+from steve import Steve
 
 from Callbacks import frameDrawCallback, sprintKeyDownHandler, sprintKeyUpHandler
 from PlayerMovement import setWalkingSpeed, disableMovement
 from Objects import Collectible
 from Bots import PathFollowingBot
 
-import steve
-
 def load():
-	viz.addChild('maze.osgb')
+	#viz.addChild('maze.osgb')
+	model : viz.VizNode = viz.addChild(r"C:\Users\Mynam\VizardThesis\Assets\3d_pixel_dungeon_set\scene_bright.osgb")
+	model.setScale(x=0.1, y=0.1, z=0.1, mode=viz.RELATIVE)
+	viz.MainView.stepSize(1)
 	#model = viz.addChild('Assets/Hexagon_Environment_Thesis.osgb')
 	viz.clearcolor(viz.SKYBLUE)
 	
 	#viz.mouse.setOverride(viz.ON)
+	viz.MainView.setPosition([6.884576320648193, 1.820000171661377, -43.427703857421875])
+	viz.MainView.setQuat([-0.0, 0.01421490591019392, 0.0, 0.9998989701271057])
 	viz.setOption('viz.fullscreen.monitor', 1)
 	viz.go(viz.FULLSCREEN)
 	vizact.ontimer(0, frameDrawCallback)
@@ -64,7 +68,7 @@ def load():
 						(-5.884194374084473, 1.8200000524520874, -3.4759459495544434), 
 						(-4.840819835662842, 1.8200000524520874, -4.874146938323975)]
 						
-	'''coinGuardBot = steve.Steve()
+	'''coinGuardBot = Steve()
 	coinGuardBot = PathFollowingBot("3CoinGuard", coinGuardBot, CoinGuardPath,
 							chase_speed=2, patrol_speed=1.25,
 							chase_360_turn_duration=0.5, patrol_360_turn_duration=1,
@@ -77,7 +81,7 @@ def load():
 							  (-4.003185749053955, 1.8200000524520874, 10.214484214782715),
 							  (-5.570601463317871, 1.8200000524520874, -3.932171106338501)]
 						
-	walkerBackAndForth = steve.Steve()
+	walkerBackAndForth = Steve()
 	walkerBackAndForth.setBodyColor([0, 0, 1.0])
 	walkerBackAndForth = PathFollowingBot("WalkerBackAndForth", walkerBackAndForth, walkerBackAndForthPath,
 							chase_speed=2, patrol_speed=1.25,
@@ -93,7 +97,7 @@ def load():
 						   (12.096813201904297, 1.8200000524520874, 8.530780792236328),
 						   (11.186570167541504, 1.8200000524520874, 7.215301990509033)]
 						
-	dumberGuardBot = steve.Steve()
+	dumberGuardBot = Steve()
 	dumberGuardBot.setBodyColor([0.0, 0, 0.0])
 	dumberGuardBot.setEyeColor([1.0, 1.0, 1.0])
 	dumberGuardBot = PathFollowingBot("DumberGuardBot", dumberGuardBot, dumberGuardBotPath,
@@ -103,8 +107,8 @@ def load():
 							change_node_theme_to_walk_mode=patrolModeWhite, 
 							change_node_theme_to_alert_mode=alertMode)'''
 	
-	viz.MainView.setPosition([12.347145080566406, 1.8200000524520874, -7.345220565795898])
-	viz.MainView.setQuat([-0.0, -0.726588249206543, 0.0, -0.6870731115341187])
+	
+	
 	
 if __name__ == "__main__":
 	load()

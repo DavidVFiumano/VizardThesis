@@ -8,8 +8,8 @@ import vizmat
 from Events import FrameUpdateEvent
 from Bots import Bot
 
-walkingSpeed = 6 # unit/sec
-sprintingSpeed = 12 # unit/sec
+walkingSpeed = 10 # unit/sec
+sprintingSpeed = 18 # unit/sec
 currentSpeed = 0
 sprinting = False
 

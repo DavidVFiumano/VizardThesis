@@ -5,7 +5,6 @@ import viz
 import vizmat
 
 from Events import FrameUpdateEvent
-from StateManagement import EventHandler
 
 def quat_to_mat(quat: Tuple[float, float, float, float]) -> viz.Matrix:
     x = quat[0]
@@ -47,6 +46,8 @@ class Bot:
 		self.avatar.setQuat(*facing)
 		self.turn_duration = 0
 		self.frameCallback = None
+		self.velocity_vector = [0.0, 0.0, 0.0]
+		self.current_target = None
 		type(self).BotList.append(self)
 		
 	def frameCallbackFunc(self, event : FrameUpdateEvent):
@@ -67,26 +68,16 @@ class Bot:
 				if bot.frameCallback is not None:
 					bot.frameCallback(event)
 		return callback
-	
-	def start(self):
-		self.frameCallback = EventHandler([self.state_machine]).callback(self.frameCallbackFunc)
-		self.started = True
-	
-	def stop(self):
-		del self.frameCallback
-		self.frameCallback = None
-		self.started = False
-		
-	def isStarted(self) -> bool:
-		return self.started
 		
 	def move_towards(self, target: Tuple[float, float, float], speed : float):
 		current_position = self.avatar.getPosition()
+		self.current_target = target
 		direction = viz.Vector(target) - current_position
 		distance = direction.length()
 
 		# Calculate the movement vector for this frame
 		direction.normalize()
+		self.velocity_vector = direction * speed
 		direction *= speed * viz.getFrameElapsed()
 		new_position = current_position + direction
 
@@ -99,8 +90,7 @@ class Bot:
 			return True
 
 		self.avatar.setPosition(new_position)
-		return False
-
+		return False		
 
 	def is_at_position(self, target: Tuple[float, float, float], speed : float) -> bool:
 		current_position = self.avatar.getPosition()

@@ -8,7 +8,7 @@ from GameStates.InputStates import KeyPressed, KeyReleased
 # global game state
 gameNotStarted = GameNotStarted()
 experimentSetup = ExperimentSetup()
-playingGame = PlayingGame(1.5)
+playingGame = PlayingGame(4.5)
 gameEndedByRobot = GameEndedByRobot()
 gameEndedByTimer = GameEndedByTimer()
 gameEndedInVictory = GameEndedInVictory()
