@@ -30,12 +30,9 @@ def startBots(*args, **kwargs):
 
 def load():
 	model : viz.VizNode = viz.addChild(r"Assets\maze\maze_withCues.osgb")
-	viz.MainView.stepSize(1)
+	viz.MainView.stepSize(0.25)
 	viz.clearcolor(viz.SKYBLUE)
-	
-	#viz.mouse.setOverride(viz.ON)
-	#viz.MainView.setPosition([0,0,23])
-	#viz.MainView.setQuat([-0.01309, 0.00436, 0.00006, 0.99990])
+
 	viz.setOption('viz.fullscreen.monitor', 1)
 	viz.go(viz.FULLSCREEN)
 	vizact.ontimer(0, frameDrawCallback)
