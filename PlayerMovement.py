@@ -39,14 +39,6 @@ def updateFOV(angleChange):
 	viz.MainView.setQuat(new_quat)
 		
 def moveMainViewFromKeys(event : FrameUpdateEvent):
-	if viz.key.isDown("t", False):
-		print(viz.MainView.getPosition())
-	if viz.key.isDown("q", False):
-		print(viz.MainView.getQuat())
-	if viz.key.isDown("p", False):
-		Bot.stop_robots()
-	if viz.key.isDown("r", False):
-		Bot.start_robots()
 	global currentSpeed
 	timeSinceLastFrame = viz.getFrameElapsed()
 	forwardSpeed = int(viz.key.isDown('w', False))*currentSpeed*timeSinceLastFrame

@@ -23,8 +23,9 @@ class AnimatedSprite:
 				self.model.setScale(scale, scale, scale)
 			else:
 				self.model.setScale(*scale)
-				
-		self.model.addAction(vizact.spin(spinAxis[0], spinAxis[1], spinAxis[2], spinDegPerSecond))
+		
+		if spinDegPerSecond is not None:
+			self.model.addAction(vizact.spin(spinAxis[0], spinAxis[1], spinAxis[2], spinDegPerSecond))
 		
 		self.name = name
 		
