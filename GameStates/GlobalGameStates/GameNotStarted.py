@@ -5,6 +5,8 @@ import viz
 
 from StateManagement import State
 from Events import FrameUpdateEvent
+from LoggerFactory import LoggerFactory, CSVFormatter
+from Objects.Collectible import Collectible
 
 class GameNotStarted(State):
 
@@ -29,6 +31,21 @@ class GameNotStarted(State):
 
         viz.callback(viz.KEYDOWN_EVENT, self.onKeydown)
         self.displayMessageText()
+        
+        collectibles = [c for c in Collectible.Collectibles]
+        formatter = CSVFormatter(["ItemName", "CoinPositionX", "CoinPositionY", "CoinPositionZ", "Value"])
+        logger = LoggerFactory.getLogger("AllCoinPositions", formatter=formatter, file="AllCoinPositions.csv")
+        for c in collectibles:
+            pos = c.getModel().getPosition()
+            record = {
+                "ItemName" : c.getName(),
+                "CoinPositionX" : pos[0],
+                "CoinPositionY" : pos[1],
+                "CoinPositionZ" : pos[2],
+                "Value" : c.value
+            }
+            logger.info("", extra=record)
+
 
     def centerTextOnScreen(self, textObject):
         # Get the text object's width and height

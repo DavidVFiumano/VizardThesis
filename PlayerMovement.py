@@ -16,6 +16,9 @@ sprinting = False
 lookSpeed = 90 # deg/sec
 currentLookSpeed = 0
 
+logged_positions = dict()
+logged_quaternions = dict()
+
 def updateFOV(angleChange):
 	elapsed_time = viz.getFrameElapsed()
 	current_quat = viz.MainView.getQuat()
@@ -39,7 +42,26 @@ def updateFOV(angleChange):
 	viz.MainView.setQuat(new_quat)
 		
 def moveMainViewFromKeys(event : FrameUpdateEvent):
-	global currentSpeed
+	global currentSpeed, logged_positions, logged_quaternions
+	if viz.key.isDown("t", False):
+		logged_positions[tuple(viz.MainView.getPosition())] = None
+		print("positions = [")
+		for pos in logged_positions.keys():
+			print(f"    {pos},")
+		print("]")
+	#if viz.key.isDown("q", False):
+		logged_quaternions[tuple(viz.MainView.getQuat())] = None
+		print("quaternions = [")
+		for quat in logged_quaternions.keys():
+			print(f"    {quat},")
+		print("]")
+		
+		print((len(logged_positions.keys()), 
+			   len(logged_quaternions.keys())))
+	#if viz.key.isDown("p", False):
+	#	Bot.stop_robots()
+	#if viz.key.isDown("r", False):
+	#	Bot.start_robots()
 	timeSinceLastFrame = viz.getFrameElapsed()
 	forwardSpeed = int(viz.key.isDown('w', False))*currentSpeed*timeSinceLastFrame
 	leftSpeed = int(viz.key.isDown('a', False))*currentSpeed*timeSinceLastFrame

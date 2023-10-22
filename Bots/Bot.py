@@ -69,28 +69,34 @@ class Bot:
 					bot.frameCallback(event)
 		return callback
 		
-	def move_towards(self, target: Tuple[float, float, float], speed : float):
+	def move_towards(self, target: Tuple[float, float, float], speed: float) -> bool:
 		current_position = self.avatar.getPosition()
 		self.current_target = target
 		direction = viz.Vector(target) - current_position
 		distance = direction.length()
 
-		# Calculate the movement vector for this frame
+		# Normalize the direction vector
 		direction.normalize()
-		self.velocity_vector = direction * speed
-		direction *= speed * viz.getFrameElapsed()
+
+		# Calculate the movement for this frame considering the elapsed time
+		frame_elapsed = viz.getFrameElapsed()
+		movement_this_frame = speed * frame_elapsed
+
+		# Calculate the movement vector for this frame
+		direction *= movement_this_frame
 		new_position = current_position + direction
 
 		# Calculate the distance the avatar will move in this frame
 		frame_movement_distance = direction.length()
-		
+
 		# Check if the avatar has reached the target in this frame
 		if distance < frame_movement_distance:
 			self.avatar.setPosition(target)
 			return True
 
 		self.avatar.setPosition(new_position)
-		return False		
+		return False
+
 
 	def is_at_position(self, target: Tuple[float, float, float], speed : float) -> bool:
 		current_position = self.avatar.getPosition()
