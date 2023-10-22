@@ -18,7 +18,7 @@ keyUpHandler = EventHandler(keyStates)
 
 @frameUpdateHandler.callback
 def frameDrawCallback() -> FrameUpdateEvent:
-    return FrameUpdateEvent(viz.MainView.getPosition()) # TODO get general game state data and return it as an "event"
+    return FrameUpdateEvent(viz.MainView.getPosition(), viz.MainView.getQuat()) # TODO get general game state data and return it as an "event"
     
 @keyDownHandler.callback
 def sprintKeyDownHandler(key):

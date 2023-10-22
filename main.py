@@ -48,7 +48,7 @@ def load():
 	
 	# vizard code below this line
 	viz.setMultiSample(4)
-	viz.fov(60)
+	viz.fov(60) # TODO if you change this go and update the fov value in FrameUpdateEvent.py too.
 	viz.MainView.collision( viz.ON )
 	
 	# coin positions
@@ -111,29 +111,7 @@ def load():
 				)
 			)
 	
-	# create collectibles
-	#c0 = Collectible(coinPath, position=[6.998621940612793, 1, 9.737794876098633], scale=5.0, spinDegPerSecond=90, value=1)
-	#c1 = Collectible(coinPath, position=[8.012781143188477, 1, 5.204422950744629], scale=5.0, spinDegPerSecond=90, value=1)
-	#c2 = Collectible(coinPath, position=[1.17171311378479, 1, 0.01703565940260887], scale=5.0, spinDegPerSecond=90, value=1)
-	#c3 = Collectible(coinPath, position=[-9.098871231079102, 1, 2.8148715496063232], scale=5.0, spinDegPerSecond=90, value=1)
-	#c4 = Collectible(coinPath, position=[-22.395402908325195, 1, 9.070356369018555], scale=5.0, spinDegPerSecond=90, value=1)
-	#c5 = Collectible(coinPath, position=[-29.99196434020996, 1, 8.297274589538574], scale=5.0, spinDegPerSecond=90, value=1)
-	#c6 = Collectible(coinPath, position=[-34.22555160522461, 1, 8.750836372375488], scale=5.0, spinDegPerSecond=90, value=1)
-	#c7 = Collectible(coinPath, position=[-34.775508880615234, 1, -2.2834818363189697], scale=5.0, spinDegPerSecond=90, value=1)
-	#c8 = Collectible(coinPath, position=[-25.39453887939453, 1, 0.24555906653404236], scale=5.0, spinDegPerSecond=90, value=1)
-	#c9 = Collectible(coinPath, position=[-20.384464263916016, 1, -2.5303268432617188], scale=5.0, spinDegPerSecond=90, value=1)
-	#c10 = Collectible(coinPath, position=[-19.111984252929688, 1, -7.447795391082764], scale=5.0, spinDegPerSecond=90, value=1)
-	#c11 = Collectible(coinPath, position=[-27.709171295166016, 1, -8.581449508666992], scale=5.0, spinDegPerSecond=90, value=1)
-	#c12 = Collectible(coinPath, position=[-34.75823211669922, 1, -7.902703285217285], scale=5.0, spinDegPerSecond=90, value=1)
-	#c13 = Collectible(coinPath, position=[-32.98622512817383, 1, -15.244168281555176], scale=5.0, spinDegPerSecond=90, value=1)
-	#c14 = Collectible(coinPath, position=[-29.37664794921875, 1, -19.854284286499023], scale=5.0, spinDegPerSecond=90, value=1)
-	#c15 = Collectible(coinPath, position=[-33.51705551147461, 1, -29.140520095825195], scale=5.0, spinDegPerSecond=90, value=1)
-	#c16 = Collectible(coinPath, position=[-16.204771041870117, 1, -27.151256561279297], scale=5.0, spinDegPerSecond=90, value=1)
-	#c17 = Collectible(coinPath, position=[-9.295578956604004, 1, -32.522727966308594], scale=5.0, spinDegPerSecond=90, value=1)
-	#c18 = Collectible(coinPath, position=[-0.13532425463199615, 1, -24.978195190429688], scale=5.0, spinDegPerSecond=90, value=1)
-	#c19 = Collectible(coinPath, position=[6.141578197479248, 1, -31.804351806640625], scale=5.0, spinDegPerSecond=90, value=1)
-	#c20 = Collectible(coinPath, position=[1.8556935787200928, 1, -16.247509002685547], scale=5.0, spinDegPerSecond=90, value=1)
-	
+
 	def angryMode(st : PathFollowingBot):
 		st.avatar.setEyeColor([1, 0, 0])
 		
@@ -170,7 +148,7 @@ def load():
 	walkerBackAndForth = Steve()
 	walkerBackAndForth.setBodyColor([0, 0, 1.0])
 	walkerBackAndForth = PathFollowingBot("WalkerBackAndForth", walkerBackAndForth, walkerBackAndForthPath,
-							chase_speed=6, patrol_speed=5,
+							chase_speed=5, patrol_speed=5,
 							chase_360_turn_duration=0.5, patrol_360_turn_duration=1,
 							change_node_theme_to_chase_mode=angryMode, 
 							change_node_theme_to_walk_mode=patrolMode, 
